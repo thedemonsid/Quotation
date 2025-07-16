@@ -7,6 +7,10 @@ type State = {
   danda: number;
   dandaPercentage: number;
   pricePerKg: number;
+  vendorCharge: number;
+  coldStorage: number;
+  localTransport: number;
+  packingMaterial: number;
 };
 
 type Action = {
@@ -16,10 +20,16 @@ type Action = {
   setDanda: (danda: number) => void;
   setDandaPercentage: (dandaPercentage: number) => void;
   setPricePerKg: (pricePerKg: number) => void;
+  setVendorCharge: (vendorCharge: number) => void;
+  setColdStorage: (coldStorage: number) => void;
+  setLocalTransport: (localTransport: number) => void;
+  setPackingMaterial: (packingMaterial: number) => void;
   updateCalculation: (updates: Partial<State>) => void;
   resetCalculation: () => void;
   getTotalWeight: () => number;
   getTotalCost: () => number;
+  getTotalCharges: () => number;
+  getGrandTotal: () => number;
   calculateDanda: () => number;
 };
 
@@ -43,6 +53,10 @@ const initialState: State = {
   danda: 0, // Will be calculated after store creation
   dandaPercentage: 8,
   pricePerKg: 20,
+  vendorCharge: 60000, // Default 60,000 rs
+  coldStorage: 20000, // Default 20,000 rs
+  localTransport: 15000,
+  packingMaterial: 38000,
 };
 
 export const useCalculationStore = create<State & Action>((set, get) => {
@@ -104,6 +118,10 @@ export const useCalculationStore = create<State & Action>((set, get) => {
 
     setDanda: (danda) => set({ danda }),
     setPricePerKg: (pricePerKg) => set({ pricePerKg }),
+    setVendorCharge: (vendorCharge) => set({ vendorCharge }),
+    setColdStorage: (coldStorage) => set({ coldStorage }),
+    setLocalTransport: (localTransport) => set({ localTransport }),
+    setPackingMaterial: (packingMaterial) => set({ packingMaterial }),
 
     updateCalculation: (updates) => {
       set((state) => ({ ...state, ...updates }));
@@ -147,6 +165,22 @@ export const useCalculationStore = create<State & Action>((set, get) => {
     getTotalCost: () => {
       const { getTotalWeight, pricePerKg } = get();
       return getTotalWeight() * Number(pricePerKg);
+    },
+
+    getTotalCharges: () => {
+      const { vendorCharge, coldStorage, localTransport, packingMaterial } =
+        get();
+      return (
+        Number(vendorCharge) +
+        Number(coldStorage) +
+        Number(localTransport) +
+        Number(packingMaterial)
+      );
+    },
+
+    getGrandTotal: () => {
+      const { getTotalCost, getTotalCharges } = get();
+      return getTotalCost() + getTotalCharges();
     },
   };
 });
