@@ -1,13 +1,22 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { DollarSign, Users, Snowflake, Truck, PackageOpen } from "lucide-react";
+import {
+  DollarSign,
+  Users,
+  Snowflake,
+  Truck,
+  PackageOpen,
+  Package,
+} from "lucide-react";
 
 interface AdditionalChargesProps {
+  boxPrice: number;
   vendorCharge: number;
   coldStorage: number;
   localTransport: number;
   packingMaterial: number;
+  onBoxPriceChange: (value: number) => void;
   onVendorChargeChange: (value: number) => void;
   onColdStorageChange: (value: number) => void;
   onLocalTransportChange: (value: number) => void;
@@ -15,10 +24,12 @@ interface AdditionalChargesProps {
 }
 
 export function AdditionalCharges({
+  boxPrice,
   vendorCharge,
   coldStorage,
   localTransport,
   packingMaterial,
+  onBoxPriceChange,
   onVendorChargeChange,
   onColdStorageChange,
   onLocalTransportChange,
@@ -34,6 +45,23 @@ export function AdditionalCharges({
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label
+              htmlFor="boxPrice"
+              className="text-sm font-medium flex items-center gap-2"
+            >
+              <Package className="h-4 w-4" />
+              Box Price (₹)
+            </Label>
+            <Input
+              id="boxPrice"
+              type="number"
+              value={boxPrice || ""}
+              onChange={(e) => onBoxPriceChange(Number(e.target.value) || 0)}
+              placeholder="Ex. 90"
+              className="text-right"
+            />
+          </div>
           <div className="space-y-2">
             <Label
               htmlFor="vendorCharge"
@@ -53,6 +81,9 @@ export function AdditionalCharges({
               className="text-right"
             />
           </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label
               htmlFor="coldStorage"
@@ -70,9 +101,6 @@ export function AdditionalCharges({
               className="text-right"
             />
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label
               htmlFor="localTransport"
@@ -92,6 +120,9 @@ export function AdditionalCharges({
               className="text-right"
             />
           </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label
               htmlFor="packingMaterial"

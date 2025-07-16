@@ -2,7 +2,7 @@ import { useCalculationStore } from "@/store/calculation";
 
 export function useCalculations() {
   const store = useCalculationStore();
-  
+
   const {
     noOfBoxes,
     boxWeight,
@@ -10,6 +10,7 @@ export function useCalculations() {
     danda,
     dandaPercentage,
     pricePerKg,
+    boxPrice,
     vendorCharge,
     coldStorage,
     localTransport,
@@ -18,6 +19,7 @@ export function useCalculations() {
     setBoxWeight,
     setDandaPercentage,
     setPricePerKg,
+    setBoxPrice,
     setVendorCharge,
     setColdStorage,
     setLocalTransport,
@@ -41,11 +43,12 @@ export function useCalculations() {
     danda,
     dandaPercentage,
     pricePerKg,
+    boxPrice,
     vendorCharge,
     coldStorage,
     localTransport,
     packingMaterial,
-    
+
     // Derived values
     grossWeight,
     netWeight,
@@ -53,12 +56,13 @@ export function useCalculations() {
     totalCost: getTotalCost(),
     totalCharges: getTotalCharges(),
     grandTotal: getGrandTotal(),
-    
+
     // Actions
     setNoOfBoxes,
     setBoxWeight,
     setDandaPercentage,
     setPricePerKg,
+    setBoxPrice,
     setVendorCharge,
     setColdStorage,
     setLocalTransport,

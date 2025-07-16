@@ -9,6 +9,7 @@ interface SummarySectionProps {
   dandaPercentage: number;
   totalWeight: number;
   weightCost: number;
+  boxPrice: number;
   vendorCharge: number;
   coldStorage: number;
   localTransport: number;
@@ -25,6 +26,7 @@ export function SummarySection({
   dandaPercentage,
   totalWeight,
   weightCost,
+  boxPrice,
   vendorCharge,
   coldStorage,
   localTransport,
@@ -47,6 +49,7 @@ export function SummarySection({
         weightCost={weightCost}
         vendorCharge={vendorCharge}
         coldStorage={coldStorage}
+        boxPrice={boxPrice}
         localTransport={localTransport}
         packingMaterial={packingMaterial}
         grandTotal={grandTotal}

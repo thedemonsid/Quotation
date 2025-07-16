@@ -7,6 +7,7 @@ type State = {
   danda: number;
   dandaPercentage: number;
   pricePerKg: number;
+  boxPrice: number;
   vendorCharge: number;
   coldStorage: number;
   localTransport: number;
@@ -20,6 +21,7 @@ type Action = {
   setDanda: (danda: number) => void;
   setDandaPercentage: (dandaPercentage: number) => void;
   setPricePerKg: (pricePerKg: number) => void;
+  setBoxPrice: (boxPrice: number) => void;
   setVendorCharge: (vendorCharge: number) => void;
   setColdStorage: (coldStorage: number) => void;
   setLocalTransport: (localTransport: number) => void;
@@ -53,6 +55,7 @@ const initialState: State = {
   danda: 0, // Will be calculated after store creation
   dandaPercentage: 8,
   pricePerKg: 20,
+  boxPrice: 90,
   vendorCharge: 60000, // Default 60,000 rs
   coldStorage: 20000, // Default 20,000 rs
   localTransport: 15000,
@@ -118,6 +121,7 @@ export const useCalculationStore = create<State & Action>((set, get) => {
 
     setDanda: (danda) => set({ danda }),
     setPricePerKg: (pricePerKg) => set({ pricePerKg }),
+    setBoxPrice: (boxPrice) => set({ boxPrice }),
     setVendorCharge: (vendorCharge) => set({ vendorCharge }),
     setColdStorage: (coldStorage) => set({ coldStorage }),
     setLocalTransport: (localTransport) => set({ localTransport }),
@@ -168,13 +172,20 @@ export const useCalculationStore = create<State & Action>((set, get) => {
     },
 
     getTotalCharges: () => {
-      const { vendorCharge, coldStorage, localTransport, packingMaterial } =
-        get();
+      const {
+        vendorCharge,
+        coldStorage,
+        localTransport,
+        packingMaterial,
+        boxPrice,
+        noOfBoxes,
+      } = get();
       return (
         Number(vendorCharge) +
         Number(coldStorage) +
         Number(localTransport) +
-        Number(packingMaterial)
+        Number(packingMaterial) +
+        Number(boxPrice * noOfBoxes)
       );
     },
 

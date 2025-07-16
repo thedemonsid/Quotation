@@ -7,6 +7,7 @@ interface InputSectionProps {
   boxWeight: number;
   dandaPercentage: number;
   pricePerKg: number;
+  boxPrice: number;
   vendorCharge: number;
   coldStorage: number;
   localTransport: number;
@@ -15,6 +16,7 @@ interface InputSectionProps {
   onBoxWeightChange: (value: number) => void;
   onDandaPercentageChange: (value: number) => void;
   onPricePerKgChange: (value: number) => void;
+  onBoxPriceChange: (value: number) => void;
   onVendorChargeChange: (value: number) => void;
   onColdStorageChange: (value: number) => void;
   onLocalTransportChange: (value: number) => void;
@@ -27,6 +29,7 @@ export function InputSection({
   boxWeight,
   dandaPercentage,
   pricePerKg,
+  boxPrice,
   vendorCharge,
   coldStorage,
   localTransport,
@@ -35,6 +38,7 @@ export function InputSection({
   onBoxWeightChange,
   onDandaPercentageChange,
   onPricePerKgChange,
+  onBoxPriceChange,
   onVendorChargeChange,
   onColdStorageChange,
   onLocalTransportChange,
@@ -59,6 +63,8 @@ export function InputSection({
         coldStorage={coldStorage}
         localTransport={localTransport}
         packingMaterial={packingMaterial}
+        boxPrice={boxPrice}
+        onBoxPriceChange={onBoxPriceChange}
         onVendorChargeChange={onVendorChargeChange}
         onColdStorageChange={onColdStorageChange}
         onLocalTransportChange={onLocalTransportChange}
