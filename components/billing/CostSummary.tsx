@@ -8,6 +8,7 @@ interface CostSummaryProps {
   coldStorage: number;
   localTransport: number;
   packingMaterial: number;
+  companyCharges: number;
   boxPrice?: number;
   grandTotal: number;
   noOfBoxes: number;
@@ -19,6 +20,7 @@ export function CostSummary({
   coldStorage,
   localTransport,
   packingMaterial,
+  companyCharges,
   boxPrice,
   grandTotal,
   noOfBoxes,
@@ -61,6 +63,12 @@ export function CostSummary({
             <span className="text-sm text-gray-600">Packing Material:</span>
             <span className="font-mono font-medium">
               ₹{packingMaterial.toLocaleString()}
+            </span>
+          </div>
+          <div className="flex justify-between items-center py-2">
+            <span className="text-sm text-gray-600">Company Charges:</span>
+            <span className="font-mono font-medium">
+              ₹{companyCharges.toLocaleString()}
             </span>
           </div>
           {boxPrice && boxPrice > 0 && (

@@ -15,6 +15,7 @@ export function useCalculations() {
     coldStorage,
     localTransport,
     packingMaterial,
+    companyCharges,
     setNoOfBoxes,
     setBoxWeight,
     setDandaPercentage,
@@ -24,6 +25,7 @@ export function useCalculations() {
     setColdStorage,
     setLocalTransport,
     setPackingMaterial,
+    setCompanyCharges,
     getTotalWeight,
     getTotalCost,
     getTotalCharges,
@@ -48,6 +50,7 @@ export function useCalculations() {
     coldStorage,
     localTransport,
     packingMaterial,
+    companyCharges,
 
     // Derived values
     grossWeight,
@@ -67,6 +70,7 @@ export function useCalculations() {
     setColdStorage,
     setLocalTransport,
     setPackingMaterial,
+    setCompanyCharges,
     resetCalculation,
   };
 }

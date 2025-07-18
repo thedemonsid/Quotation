@@ -14,6 +14,7 @@ interface SummarySectionProps {
   coldStorage: number;
   localTransport: number;
   packingMaterial: number;
+  companyCharges: number;
   grandTotal: number;
   noOfBoxes: number;
 }
@@ -31,6 +32,7 @@ export function SummarySection({
   coldStorage,
   localTransport,
   packingMaterial,
+  companyCharges,
   grandTotal,
   noOfBoxes,
 }: SummarySectionProps) {
@@ -52,6 +54,7 @@ export function SummarySection({
         boxPrice={boxPrice}
         localTransport={localTransport}
         packingMaterial={packingMaterial}
+        companyCharges={companyCharges}
         grandTotal={grandTotal}
         noOfBoxes={noOfBoxes}
       />

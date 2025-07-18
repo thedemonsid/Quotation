@@ -12,6 +12,7 @@ interface InputSectionProps {
   coldStorage: number;
   localTransport: number;
   packingMaterial: number;
+  companyCharges: number;
   onNoOfBoxesChange: (value: number) => void;
   onBoxWeightChange: (value: number) => void;
   onDandaPercentageChange: (value: number) => void;
@@ -21,6 +22,7 @@ interface InputSectionProps {
   onColdStorageChange: (value: number) => void;
   onLocalTransportChange: (value: number) => void;
   onPackingMaterialChange: (value: number) => void;
+  onCompanyChargesChange: (value: number) => void;
   onReset: () => void;
 }
 
@@ -34,6 +36,7 @@ export function InputSection({
   coldStorage,
   localTransport,
   packingMaterial,
+  companyCharges,
   onNoOfBoxesChange,
   onBoxWeightChange,
   onDandaPercentageChange,
@@ -43,6 +46,7 @@ export function InputSection({
   onColdStorageChange,
   onLocalTransportChange,
   onPackingMaterialChange,
+  onCompanyChargesChange,
   onReset,
 }: InputSectionProps) {
   return (
@@ -63,12 +67,14 @@ export function InputSection({
         coldStorage={coldStorage}
         localTransport={localTransport}
         packingMaterial={packingMaterial}
+        companyCharges={companyCharges}
         boxPrice={boxPrice}
         onBoxPriceChange={onBoxPriceChange}
         onVendorChargeChange={onVendorChargeChange}
         onColdStorageChange={onColdStorageChange}
         onLocalTransportChange={onLocalTransportChange}
         onPackingMaterialChange={onPackingMaterialChange}
+        onCompanyChargesChange={onCompanyChargesChange}
       />
 
       <ResetButton onReset={onReset} />

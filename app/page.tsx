@@ -24,6 +24,7 @@ export default function Home() {
     coldStorage,
     localTransport,
     packingMaterial,
+    companyCharges,
     grossWeight,
     netWeight,
     totalWeight,
@@ -38,6 +39,7 @@ export default function Home() {
     setColdStorage,
     setLocalTransport,
     setPackingMaterial,
+    setCompanyCharges,
     resetCalculation,
   } = useCalculations();
 
@@ -92,6 +94,7 @@ export default function Home() {
             coldStorage={coldStorage}
             localTransport={localTransport}
             packingMaterial={packingMaterial}
+            companyCharges={companyCharges}
             onBoxPriceChange={setBoxPrice}
             onNoOfBoxesChange={setNoOfBoxes}
             onBoxWeightChange={setBoxWeight}
@@ -101,6 +104,7 @@ export default function Home() {
             onColdStorageChange={setColdStorage}
             onLocalTransportChange={setLocalTransport}
             onPackingMaterialChange={setPackingMaterial}
+            onCompanyChargesChange={setCompanyCharges}
             onReset={resetCalculation}
           />
 
@@ -117,6 +121,7 @@ export default function Home() {
             coldStorage={coldStorage}
             localTransport={localTransport}
             packingMaterial={packingMaterial}
+            companyCharges={companyCharges}
             grandTotal={grandTotal}
             noOfBoxes={noOfBoxes}
           />

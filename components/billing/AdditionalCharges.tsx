@@ -8,6 +8,7 @@ import {
   Truck,
   PackageOpen,
   Package,
+  Building2,
 } from "lucide-react";
 
 interface AdditionalChargesProps {
@@ -16,11 +17,13 @@ interface AdditionalChargesProps {
   coldStorage: number;
   localTransport: number;
   packingMaterial: number;
+  companyCharges: number;
   onBoxPriceChange: (value: number) => void;
   onVendorChargeChange: (value: number) => void;
   onColdStorageChange: (value: number) => void;
   onLocalTransportChange: (value: number) => void;
   onPackingMaterialChange: (value: number) => void;
+  onCompanyChargesChange: (value: number) => void;
 }
 
 export function AdditionalCharges({
@@ -29,11 +32,13 @@ export function AdditionalCharges({
   coldStorage,
   localTransport,
   packingMaterial,
+  companyCharges,
   onBoxPriceChange,
   onVendorChargeChange,
   onColdStorageChange,
   onLocalTransportChange,
   onPackingMaterialChange,
+  onCompanyChargesChange,
 }: AdditionalChargesProps) {
   return (
     <Card>
@@ -139,6 +144,25 @@ export function AdditionalCharges({
                 onPackingMaterialChange(Number(e.target.value) || 0)
               }
               placeholder="Ex. 38000"
+              className="text-right"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label
+              htmlFor="companyCharges"
+              className="text-sm font-medium flex items-center gap-2"
+            >
+              <Building2 className="h-4 w-4" />
+              Company Charges (₹)
+            </Label>
+            <Input
+              id="companyCharges"
+              type="number"
+              value={companyCharges || ""}
+              onChange={(e) =>
+                onCompanyChargesChange(Number(e.target.value) || 0)
+              }
+              placeholder="Ex. 100000"
               className="text-right"
             />
           </div>
