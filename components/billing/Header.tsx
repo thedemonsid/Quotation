@@ -1,5 +1,3 @@
-import { Calculator } from "lucide-react";
-
 export function Header() {
   return (
     <div className="bg-white border-b">

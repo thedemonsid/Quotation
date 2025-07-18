@@ -4,31 +4,8 @@ import { useReactToPrint } from "react-to-print";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Printer, Phone, Mail, MapPin } from "lucide-react";
-
-interface QuotationItem {
-  id: string;
-  description: string;
-  quantity: number;
-  unit: string;
-  rate: number;
-  amount: number;
-}
-
-interface QuotationData {
-  quotationNumber: string;
-  date: string;
-  customerName: string;
-  customerAddress: string;
-  customerPhone?: string;
-  customerEmail?: string;
-  items: QuotationItem[];
-  subtotal: number;
-  tax?: number;
-  discount?: number;
-  total: number;
-  validityPeriod?: string;
-  terms?: string[];
-}
+import { useQuotationStore } from "@/store/quotation";
+import type { QuotationData } from "@/types/quotation";
 
 interface QuotationTemplateProps {
   data: QuotationData;
@@ -36,63 +13,85 @@ interface QuotationTemplateProps {
 
 const QuotationTemplate: React.FC<QuotationTemplateProps> = ({ data }) => {
   const contentRef = useRef<HTMLDivElement>(null);
+  const { companyDetails } = useQuotationStore();
+
   const reactToPrintFn = useReactToPrint({
     contentRef,
     documentTitle: `Quotation-${data.quotationNumber}`,
   });
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4 bg-gray-50 min-h-screen">
-      <div className="mb-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-slate-800">Quotation Preview</h1>
+    <div className="w-full max-w-4xl mx-auto p-2 sm:p-4 bg-gray-50 min-h-screen">
+      <div className="mb-3 sm:mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 print:hidden">
+        <h1 className="text-lg sm:text-xl font-bold text-slate-800">
+          Quotation Preview
+        </h1>
         <Button
           onClick={reactToPrintFn}
           size="sm"
-          className="flex items-center gap-2 bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg"
+          className="flex items-center gap-2 bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg self-end sm:self-auto"
         >
           <Printer className="w-4 h-4" />
-          Print Quotation
+          <span className="hidden xs:inline">Print Quotation</span>
+          <span className="xs:hidden">Print</span>
         </Button>
       </div>
 
-      <div ref={contentRef} className="bg-white p-6 shadow-lg min-h-[297mm]">
+      <div
+        ref={contentRef}
+        className="bg-white p-3 sm:p-6 print:p-6 shadow-lg min-h-[297mm]"
+      >
         {/* Header Section - Compact Layout */}
         <div className="mb-3">
           <div className="h-2 bg-gradient-to-r from-cyan-500 to-slate-700 rounded-full mb-3"></div>
-          <div className="flex justify-between items-start">
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-slate-800 mb-1">
-                <span className="text-cyan-600">BANANA VENTURES</span>
-                <span className="text-slate-700"> SHINDE'S</span>
+          <div className="flex flex-col lg:flex-row print:flex-row justify-between items-start gap-4 lg:gap-0 print:gap-0">
+            <div className="flex-1 w-full lg:w-auto print:w-auto">
+              <h1 className="text-xl sm:text-2xl print:text-2xl font-bold text-slate-800 mb-1 break-words print:break-normal">
+                <span className="text-cyan-600">
+                  {companyDetails.name.split(" ")[0]}{" "}
+                  {companyDetails.name.split(" ")[1]}
+                </span>
+                <span className="text-slate-700">
+                  {" "}
+                  {companyDetails.name.split(" ").slice(2).join(" ")}
+                </span>
               </h1>
-              <p className="text-xs text-slate-600 font-medium mb-2">
-                Quality is our identity
+              <p className="text-xs text-slate-600 font-medium mb-2 break-words print:break-normal">
+                {companyDetails.tagline}
               </p>
 
               <div className="space-y-0.5 text-xs text-slate-600">
-                <p className="font-semibold text-slate-800">
-                  Pruthviraj Shinde
+                <p className="font-semibold text-slate-800 break-words print:break-normal">
+                  {companyDetails.ownerName}
                 </p>
-                <p>Jategaon, Karmala, Maharashtra India</p>
-                <p className="font-semibold text-slate-800">+91 9169700222</p>
-                <p>bananaventures.shindes@gmail.com</p>
-                <p className="font-semibold text-slate-800">
-                  GSTIN: 27SYEPS7484G1ZC
+                <p className="break-words print:break-normal">
+                  {companyDetails.address}
+                </p>
+                <p className="font-semibold text-slate-800 break-all print:break-normal">
+                  {companyDetails.phone}
+                </p>
+                <p className="break-all print:break-normal">
+                  {companyDetails.email}
+                </p>
+                <p className="font-semibold text-slate-800 break-all print:break-normal">
+                  GSTIN: {companyDetails.gstin}
                 </p>
               </div>
             </div>
 
-            <div className="text-right">
-              <h2 className="text-2xl font-bold text-slate-800 mb-2">
+            <div className="text-left lg:text-right print:text-right w-full lg:w-auto print:w-auto">
+              <h2 className="text-xl sm:text-2xl print:text-2xl font-bold text-slate-800 mb-2">
                 Quotation
               </h2>
-              <div className="bg-slate-50 p-3 rounded-lg min-w-[200px]">
+              <div className="bg-slate-50 p-3 rounded-lg w-full lg:min-w-[200px] print:min-w-[200px]">
                 <div className="space-y-1 text-xs">
                   <p>
                     <span className="font-semibold text-slate-700">
                       Quotation#:
                     </span>{" "}
-                    {data.quotationNumber}
+                    <span className="break-all print:break-normal">
+                      {data.quotationNumber}
+                    </span>
                   </p>
                   <p>
                     <span className="font-semibold text-slate-700">Date:</span>{" "}
@@ -117,17 +116,21 @@ const QuotationTemplate: React.FC<QuotationTemplateProps> = ({ data }) => {
           <div className="bg-slate-50 p-2 rounded">
             <h3 className="text-sm font-semibold text-slate-800 mb-1">To,</h3>
             <div className="space-y-0.5 text-sm">
-              <p className="font-semibold text-slate-800">
+              <p className="font-semibold text-slate-800 break-words print:break-normal">
                 {data.customerName}
               </p>
-              <p className="text-slate-600">{data.customerAddress}</p>
+              <p className="text-slate-600 break-words print:break-normal">
+                {data.customerAddress}
+              </p>
               {data.customerPhone && (
-                <p className="text-slate-600 font-medium">
+                <p className="text-slate-600 font-medium break-all print:break-normal">
                   {data.customerPhone}
                 </p>
               )}
               {data.customerEmail && (
-                <p className="text-slate-600">{data.customerEmail}</p>
+                <p className="text-slate-600 break-all print:break-normal">
+                  {data.customerEmail}
+                </p>
               )}
             </div>
           </div>
@@ -147,23 +150,23 @@ const QuotationTemplate: React.FC<QuotationTemplateProps> = ({ data }) => {
             Item Details
           </h3>
           <div className="bg-slate-50 p-2 rounded">
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs">
+            <div className="overflow-x-auto print:overflow-x-visible">
+              <table className="w-full text-xs min-w-[500px] print:min-w-full">
                 <thead>
                   <tr className="border-b border-slate-200">
                     <th className="text-left py-1 font-bold text-slate-800 w-6">
                       #
                     </th>
-                    <th className="text-left py-1 font-bold text-slate-800">
+                    <th className="text-left py-1 font-bold text-slate-800 min-w-[120px] print:min-w-0">
                       DESCRIPTION
                     </th>
-                    <th className="text-center py-1 font-bold text-slate-800">
+                    <th className="text-center py-1 font-bold text-slate-800 min-w-[60px] print:min-w-0">
                       QTY
                     </th>
-                    <th className="text-right py-1 font-bold text-slate-800">
+                    <th className="text-right py-1 font-bold text-slate-800 min-w-[80px] print:min-w-0">
                       PRICE
                     </th>
-                    <th className="text-right py-1 font-bold text-slate-800">
+                    <th className="text-right py-1 font-bold text-slate-800 min-w-[80px] print:min-w-0">
                       TOTAL
                     </th>
                   </tr>
@@ -175,7 +178,7 @@ const QuotationTemplate: React.FC<QuotationTemplateProps> = ({ data }) => {
                         {index + 1}
                       </td>
                       <td className="py-1">
-                        <div className="font-medium text-slate-800">
+                        <div className="font-medium text-slate-800 break-words print:break-normal">
                           {item.description}
                         </div>
                       </td>
@@ -183,7 +186,7 @@ const QuotationTemplate: React.FC<QuotationTemplateProps> = ({ data }) => {
                         {item.quantity} {item.unit}
                       </td>
                       <td className="py-1 text-right font-bold text-slate-800">
-                        ${item.rate.toFixed(2)}
+                        ${item.rate.toFixed(4)}
                       </td>
                       <td className="py-1 text-right font-bold text-slate-800">
                         ${item.amount.toFixed(2)}
@@ -197,7 +200,7 @@ const QuotationTemplate: React.FC<QuotationTemplateProps> = ({ data }) => {
         </div>
 
         {/* Totals Section */}
-        <div className="mb-3 w-72 ml-auto">
+        <div className="mb-3 w-full sm:w-72 print:w-72 sm:ml-auto print:ml-auto">
           <div className="bg-slate-50 p-3 rounded">
             <div className="space-y-2">
               <div className="flex justify-between items-center text-sm">
@@ -214,14 +217,6 @@ const QuotationTemplate: React.FC<QuotationTemplateProps> = ({ data }) => {
                   </span>
                 </div>
               )}
-              {/* {data.tax && (
-                <div className="flex justify-between items-center text-sm">
-                  <span className="font-medium text-slate-700">Tax:</span>
-                  <span className="font-bold text-slate-800">
-                    ${data.tax.toFixed(2)}
-                  </span>
-                </div>
-              )} */}
               <Separator />
               <div className="flex justify-between items-center">
                 <span className="font-bold text-slate-800">GRAND TOTAL:</span>
@@ -249,7 +244,10 @@ const QuotationTemplate: React.FC<QuotationTemplateProps> = ({ data }) => {
             <div className="bg-slate-50 p-2 rounded">
               <div className="space-y-1">
                 {data.terms.map((term, index) => (
-                  <p key={index} className="text-xs text-slate-700 font-medium">
+                  <p
+                    key={index}
+                    className="text-xs text-slate-700 font-medium break-words print:break-normal"
+                  >
                     {term}
                   </p>
                 ))}
@@ -260,12 +258,12 @@ const QuotationTemplate: React.FC<QuotationTemplateProps> = ({ data }) => {
 
         {/* Signature Section */}
         <div className="mb-4">
-          <div className="flex justify-end">
+          <div className="flex justify-center sm:justify-end print:justify-end">
             <div className="text-center">
               <div className="h-12 mb-2"></div>
               <Separator className="w-32 mb-2" />
-              <p className="text-sm font-bold text-slate-800">
-                For, Banana Ventures Shinde's
+              <p className="text-sm font-bold text-slate-800 break-words print:break-normal">
+                For, {companyDetails.name}
               </p>
               <p className="text-xs text-slate-600">Authorized Signatory</p>
             </div>
@@ -274,22 +272,28 @@ const QuotationTemplate: React.FC<QuotationTemplateProps> = ({ data }) => {
 
         {/* Footer */}
         <div className="mt-auto pt-4 border-t border-slate-200">
-          <div className="flex justify-between items-center text-xs text-slate-500">
-            <div className="flex items-center space-x-4">
+          <div className="flex flex-col sm:flex-row print:flex-row justify-between items-start sm:items-center print:items-center gap-2 sm:gap-0 print:gap-0 text-xs text-slate-500">
+            <div className="flex flex-col sm:flex-row print:flex-row items-start sm:items-center print:items-center gap-2 sm:gap-4 print:gap-4">
               <div className="flex items-center gap-1">
                 <Phone className="w-3 h-3" />
-                <span>+91 9169700222</span>
+                <span className="break-all print:break-normal">
+                  {companyDetails.phone}
+                </span>
               </div>
               <div className="flex items-center gap-1">
                 <Mail className="w-3 h-3" />
-                <span>bananaventures.shindes@gmail.com</span>
+                <span className="break-all print:break-normal">
+                  {companyDetails.email}
+                </span>
               </div>
               <div className="flex items-center gap-1">
                 <MapPin className="w-3 h-3" />
-                <span>Jategaon, Karmala, Maharashtra, India</span>
+                <span className="break-words print:break-normal">
+                  {companyDetails.address}
+                </span>
               </div>
             </div>
-            <div>
+            <div className="self-end sm:self-auto print:self-auto">
               <span>Page 1 of 1</span>
             </div>
           </div>
