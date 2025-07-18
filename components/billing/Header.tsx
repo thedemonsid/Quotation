@@ -1,4 +1,9 @@
+"use client";
+import { useAuth } from "@/hooks/useAuth";
+
 export function Header() {
+  const { userName, isLoaded } = useAuth();
+
   return (
     <div className="bg-white border-b">
       <div className="container mx-auto max-w-6xl px-6 py-2">
@@ -6,6 +11,11 @@ export function Header() {
           <h1 className="text-3xl font-bold text-gray-900">
             Import Export Billing Calculator
           </h1>
+          {isLoaded && userName && (
+            <p className="text-sm text-gray-600 mt-1">
+              Welcome back, {userName}!
+            </p>
+          )}
         </div>
       </div>
     </div>
