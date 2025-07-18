@@ -12,18 +12,18 @@ This project has been configured with Clerk authentication following the latest 
 
 ### 2. Configure Environment Variables
 
-Update the `.env.local` file with your Clerk keys:
+Update the `.env.local` file with your Clerk keys and approved emails:
 
 ```env
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_your_key_here
 CLERK_SECRET_KEY=sk_test_your_key_here
 
-# Optional URL configuration
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
-NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
-NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
+# Approved Emails (comma-separated list)
+# Only these email addresses will be allowed to access the application
+APPROVED_EMAILS=admin@yourcompany.com,manager@yourcompany.com,user@example.com
 ```
+
+**Email Access Control**: Only users with email addresses listed in `APPROVED_EMAILS` can access the application. Leave this empty to allow all users.
 
 ### 3. Run the Application
 
@@ -43,7 +43,10 @@ pnpm dev
 
 - **Home Page**: Shows different content for authenticated/unauthenticated users
 - **Quotation Template**: Requires authentication to access
-- **API Routes**: Protected server-side endpoints
+- **All API Routes**: Protected by default (require authentication + email approval)
+- **Public API Routes**: Only health checks and webhooks remain public
+- **Email Approval**: Only approved email addresses can access the application
+- **Unauthorized Page**: Clear messaging for non-approved users
 
 ### ✅ Developer Experience
 

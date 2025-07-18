@@ -56,27 +56,27 @@ const QuotationPage: React.FC = () => {
         <div className="min-h-screen bg-gray-50">
           {/* Header with Navigation and Controls */}
           <div className="bg-white shadow-sm border-b">
-            <div className="container mx-auto px-3 sm:px-6 py-3 sm:py-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
-                <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
+            <div className="container px-2 py-2 sm:px-3 sm:py-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+                <div className="flex items-center gap-1 sm:gap-4 w-full sm:w-auto">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => router.push("/")}
-                    className="flex items-center gap-2 text-xs sm:text-sm"
+                    className="flex items-center gap-1 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2"
                   >
                     <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
                     <span className="hidden xs:inline">Back to Calculator</span>
                     <span className="xs:hidden">Back</span>
                   </Button>
-                  <h1 className="text-lg sm:text-2xl font-bold text-gray-800 truncate">
+                  <h1 className="text-base sm:text-2xl font-bold text-gray-800 truncate">
                     Quotation Generator
                   </h1>
                 </div>
 
                 {/* Exchange Rate Display */}
-                <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto justify-end">
-                  <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-600">
+                <div className="flex items-center gap-1 sm:gap-4 w-full sm:w-auto justify-end">
+                  <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-600">
                     <DollarSign className="w-3 h-3 sm:w-4 sm:h-4" />
                     <span className="truncate">
                       {exchangeRateInfo.formattedRate}
@@ -85,7 +85,7 @@ const QuotationPage: React.FC = () => {
                       variant={
                         exchangeRateInfo.error ? "destructive" : "secondary"
                       }
-                      className="text-xs"
+                      className="text-xs px-1 py-0.5"
                     >
                       {exchangeRateInfo.error ? "Fallback" : "Live"}
                     </Badge>
@@ -94,7 +94,7 @@ const QuotationPage: React.FC = () => {
                       size="sm"
                       onClick={refreshExchangeRate}
                       disabled={isLoading}
-                      className="ml-1 sm:ml-2 p-1 sm:p-2"
+                      className="ml-1 p-1"
                     >
                       <RefreshCw
                         className={`w-3 h-3 ${isLoading ? "animate-spin" : ""}`}
@@ -108,13 +108,13 @@ const QuotationPage: React.FC = () => {
 
           {/* Control Panel */}
           <div className="bg-white shadow-sm border-b">
-            <div className="container mx-auto px-3 sm:px-6 py-3 sm:py-4">
-              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 lg:gap-0">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full lg:w-auto">
-                  <h2 className="text-base sm:text-lg font-semibold text-gray-700 whitespace-nowrap">
+            <div className="container mx-auto px-2 py-2 sm:px-3 sm:py-4">
+              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2 lg:gap-0">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full lg:w-auto">
+                  <h2 className="text-sm sm:text-lg font-semibold text-gray-700 whitespace-nowrap">
                     Quotation Details
                   </h2>
-                  <div className="flex flex-wrap gap-2 sm:gap-3">
+                  <div className="flex flex-wrap gap-1 sm:gap-3">
                     <CompanyDetailsDialog />
                     <CustomerDetailsDialog />
                     <QuotationDetailsDialog />
@@ -122,7 +122,7 @@ const QuotationPage: React.FC = () => {
                 </div>
 
                 {/* Summary Stats */}
-                <div className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm w-full lg:w-auto justify-between lg:justify-end">
+                <div className="flex items-center gap-2 sm:gap-6 text-xs sm:text-sm w-full lg:w-auto justify-between lg:justify-end">
                   <div className="text-center">
                     <div className="text-gray-500">Total (INR)</div>
                     <div className="font-bold text-sm sm:text-lg">
@@ -146,7 +146,7 @@ const QuotationPage: React.FC = () => {
           </div>
 
           {/* Quotation Template */}
-          <div className="container mx-auto py-4 sm:py-8 px-3 sm:px-6">
+          <div className="container mx-auto py-2 sm:py-8 px-2 sm:px-6">
             <QuotationTemplate data={quotationData} />
           </div>
         </div>
