@@ -1,7 +1,7 @@
 "use client";
 import { SignedIn, UserButton, useClerk } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
-import { Shield, Mail, LogIn } from "lucide-react";
+import { Shield, LogIn } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function UnauthorizedPage() {
