@@ -1,9 +1,11 @@
 "use client";
-import React from "react";
+import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import QuotationTemplate from "@/templates/quotationHtmlTemplate";
 import {
   CompanyDetailsDialog,
@@ -18,16 +20,79 @@ import {
   DollarSign,
   TrendingUp,
   Lock,
+  Edit3,
 } from "lucide-react";
 
 const QuotationPage: React.FC = () => {
   const router = useRouter();
   const { quotationData, calculationBreakdown, formatINR, formatUSD } =
     useQuotationData();
-  const { getExchangeRateInfo, refreshExchangeRate, isLoading } = useCurrency();
+  const { getExchangeRateInfo, refreshExchangeRate, isLoading, convertToINR } =
+    useCurrency();
+
+  // State for manual price per box override (in USD)
+  const [userInputPrice, setUserInputPrice] = useState<string>("");
 
   // Get exchange rate info for display
   const exchangeRateInfo = getExchangeRateInfo();
+
+  // Calculate the original price per box in USD
+  const originalPricePerBoxUSD = quotationData.items[0]?.rate || 0;
+
+  // Create modified quotation data with user input price
+  const modifiedQuotationData = useMemo(() => {
+    if (!userInputPrice || isNaN(parseFloat(userInputPrice))) {
+      return quotationData;
+    }
+
+    const newRate = parseFloat(userInputPrice);
+    const newAmount = newRate * quotationData.items[0].quantity;
+
+    return {
+      ...quotationData,
+      items: [
+        {
+          ...quotationData.items[0],
+          rate: newRate,
+          amount: newAmount,
+        },
+      ],
+      subtotal: newAmount,
+      total: newAmount,
+    };
+  }, [quotationData, userInputPrice]);
+
+  // Calculate modified breakdown for display
+  const modifiedCalculationBreakdown = useMemo(() => {
+    if (!userInputPrice || isNaN(parseFloat(userInputPrice))) {
+      return calculationBreakdown;
+    }
+
+    const newPriceUSD = parseFloat(userInputPrice);
+    const totalBoxes = quotationData.items[0].quantity;
+    const newTotalUSD = newPriceUSD * totalBoxes;
+    const newTotalINR = convertToINR(newTotalUSD);
+
+    return {
+      ...calculationBreakdown,
+      costBreakdownUSD: {
+        ...calculationBreakdown.costBreakdownUSD,
+        grandTotal: newTotalUSD,
+      },
+      costBreakdownINR: {
+        ...calculationBreakdown.costBreakdownINR,
+        grandTotal: newTotalINR,
+      },
+    };
+  }, [calculationBreakdown, userInputPrice, quotationData, convertToINR]);
+
+  const handlePriceChange = (value: string) => {
+    setUserInputPrice(value);
+  };
+
+  const resetToCalculatedPrice = () => {
+    setUserInputPrice("");
+  };
 
   return (
     <>
@@ -127,7 +192,7 @@ const QuotationPage: React.FC = () => {
                     <div className="text-gray-500">Total (INR)</div>
                     <div className="font-bold text-sm sm:text-lg">
                       {formatINR(
-                        calculationBreakdown.costBreakdownINR.grandTotal
+                        modifiedCalculationBreakdown.costBreakdownINR.grandTotal
                       )}
                     </div>
                   </div>
@@ -136,7 +201,7 @@ const QuotationPage: React.FC = () => {
                     <div className="text-gray-500">Total (USD)</div>
                     <div className="font-bold text-sm sm:text-lg text-green-600">
                       {formatUSD(
-                        calculationBreakdown.costBreakdownUSD.grandTotal
+                        modifiedCalculationBreakdown.costBreakdownUSD.grandTotal
                       )}
                     </div>
                   </div>
@@ -145,9 +210,69 @@ const QuotationPage: React.FC = () => {
             </div>
           </div>
 
+          {/* Price Override Section */}
+          <div className="bg-white shadow-sm border-b">
+            <div className="container mx-auto px-2 py-3 sm:px-3 sm:py-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6">
+                <div className="flex items-center gap-2">
+                  <Edit3 className="w-4 h-4 text-cyan-600" />
+                  <span className="text-sm font-medium text-gray-700">
+                    Price per Box Override
+                  </span>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                  <div className="flex items-center gap-2">
+                    <Label
+                      htmlFor="priceOverride"
+                      className="text-xs text-gray-600 whitespace-nowrap"
+                    >
+                      Price (USD):
+                    </Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="priceOverride"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={userInputPrice}
+                        onChange={(e) => handlePriceChange(e.target.value)}
+                        placeholder={originalPricePerBoxUSD.toFixed(2)}
+                        className="w-24 sm:w-32 text-xs sm:text-sm h-8"
+                      />
+                      {userInputPrice && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={resetToCalculatedPrice}
+                          className="text-xs px-2 py-1 h-8"
+                        >
+                          Reset
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="text-xs text-gray-500">
+                    {userInputPrice && !isNaN(parseFloat(userInputPrice)) ? (
+                      <span className="text-orange-600 font-medium">
+                        Using manual price: $
+                        {parseFloat(userInputPrice).toFixed(2)}
+                      </span>
+                    ) : (
+                      <span>
+                        Calculated price: ${originalPricePerBoxUSD.toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Quotation Template */}
           <div className="container mx-auto py-2 sm:py-8 px-2 sm:px-6">
-            <QuotationTemplate data={quotationData} />
+            <QuotationTemplate data={modifiedQuotationData} />
           </div>
         </div>
       </SignedIn>
