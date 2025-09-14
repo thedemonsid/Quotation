@@ -1,13 +1,13 @@
-"use client";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
-import { Header } from "@/components/billing";
-import { InputSection } from "@/components/billing";
-import { SummarySection } from "@/components/billing";
-import { Button } from "@/components/ui/button";
-import { useCalculations } from "@/hooks/useCalculations";
-import { FileText, DollarSign, Lock } from "lucide-react";
+'use client';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
+import { Header } from '@/components/billing';
+import { InputSection } from '@/components/billing';
+import { SummarySection } from '@/components/billing';
+import { Button } from '@/components/ui/button';
+import { useCalculations } from '@/hooks/useCalculations';
+import { FileText, DollarSign, Lock } from 'lucide-react';
 
 export default function Home() {
   const [isHydrated, setIsHydrated] = useState(false);
@@ -26,6 +26,7 @@ export default function Home() {
     localTransport,
     packingMaterial,
     companyCharges,
+    chaCharges,
     grossWeight,
     netWeight,
     totalWeight,
@@ -41,6 +42,7 @@ export default function Home() {
     setLocalTransport,
     setPackingMaterial,
     setCompanyCharges,
+    setChaCharges,
     resetCalculation,
   } = useCalculations();
 
@@ -50,7 +52,7 @@ export default function Home() {
 
   const handleCreateQuotation = () => {
     // Navigate to quotation template page
-    router.push("/quotation-template");
+    router.push('/quotation-template');
   };
 
   // Prevent hydration mismatch by showing loading state until hydrated
@@ -118,6 +120,7 @@ export default function Home() {
               localTransport={localTransport}
               packingMaterial={packingMaterial}
               companyCharges={companyCharges}
+              chaCharges={chaCharges}
               onBoxPriceChange={setBoxPrice}
               onNoOfBoxesChange={setNoOfBoxes}
               onBoxWeightChange={setBoxWeight}
@@ -128,6 +131,7 @@ export default function Home() {
               onLocalTransportChange={setLocalTransport}
               onPackingMaterialChange={setPackingMaterial}
               onCompanyChargesChange={setCompanyCharges}
+              onChaChargesChange={setChaCharges}
               onReset={resetCalculation}
             />
 
@@ -145,6 +149,7 @@ export default function Home() {
               localTransport={localTransport}
               packingMaterial={packingMaterial}
               companyCharges={companyCharges}
+              chaCharges={chaCharges}
               grandTotal={grandTotal}
               noOfBoxes={noOfBoxes}
             />

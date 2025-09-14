@@ -1,6 +1,6 @@
-import { ShipmentDetails } from "./ShipmentDetails";
-import { AdditionalCharges } from "./AdditionalCharges";
-import { ResetButton } from "./ResetButton";
+import { ShipmentDetails } from './ShipmentDetails';
+import { AdditionalCharges } from './AdditionalCharges';
+import { ResetButton } from './ResetButton';
 
 interface InputSectionProps {
   noOfBoxes: number;
@@ -13,6 +13,7 @@ interface InputSectionProps {
   localTransport: number;
   packingMaterial: number;
   companyCharges: number;
+  chaCharges: number;
   onNoOfBoxesChange: (value: number) => void;
   onBoxWeightChange: (value: number) => void;
   onDandaPercentageChange: (value: number) => void;
@@ -23,6 +24,7 @@ interface InputSectionProps {
   onLocalTransportChange: (value: number) => void;
   onPackingMaterialChange: (value: number) => void;
   onCompanyChargesChange: (value: number) => void;
+  onChaChargesChange: (value: number) => void;
   onReset: () => void;
 }
 
@@ -37,6 +39,7 @@ export function InputSection({
   localTransport,
   packingMaterial,
   companyCharges,
+  chaCharges,
   onNoOfBoxesChange,
   onBoxWeightChange,
   onDandaPercentageChange,
@@ -47,6 +50,7 @@ export function InputSection({
   onLocalTransportChange,
   onPackingMaterialChange,
   onCompanyChargesChange,
+  onChaChargesChange,
   onReset,
 }: InputSectionProps) {
   return (
@@ -68,6 +72,7 @@ export function InputSection({
         localTransport={localTransport}
         packingMaterial={packingMaterial}
         companyCharges={companyCharges}
+        chaCharges={chaCharges}
         boxPrice={boxPrice}
         onBoxPriceChange={onBoxPriceChange}
         onVendorChargeChange={onVendorChargeChange}
@@ -75,6 +80,7 @@ export function InputSection({
         onLocalTransportChange={onLocalTransportChange}
         onPackingMaterialChange={onPackingMaterialChange}
         onCompanyChargesChange={onCompanyChargesChange}
+        onChaChargesChange={onChaChargesChange}
       />
 
       <ResetButton onReset={onReset} />

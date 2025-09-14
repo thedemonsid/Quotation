@@ -1,6 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   DollarSign,
   Users,
@@ -9,7 +9,7 @@ import {
   PackageOpen,
   Package,
   Building2,
-} from "lucide-react";
+} from 'lucide-react';
 
 interface AdditionalChargesProps {
   boxPrice: number;
@@ -18,12 +18,14 @@ interface AdditionalChargesProps {
   localTransport: number;
   packingMaterial: number;
   companyCharges: number;
+  chaCharges: number;
   onBoxPriceChange: (value: number) => void;
   onVendorChargeChange: (value: number) => void;
   onColdStorageChange: (value: number) => void;
   onLocalTransportChange: (value: number) => void;
   onPackingMaterialChange: (value: number) => void;
   onCompanyChargesChange: (value: number) => void;
+  onChaChargesChange: (value: number) => void;
 }
 
 export function AdditionalCharges({
@@ -33,12 +35,14 @@ export function AdditionalCharges({
   localTransport,
   packingMaterial,
   companyCharges,
+  chaCharges,
   onBoxPriceChange,
   onVendorChargeChange,
   onColdStorageChange,
   onLocalTransportChange,
   onPackingMaterialChange,
   onCompanyChargesChange,
+  onChaChargesChange,
 }: AdditionalChargesProps) {
   return (
     <Card>
@@ -61,7 +65,7 @@ export function AdditionalCharges({
             <Input
               id="boxPrice"
               type="number"
-              value={boxPrice || ""}
+              value={boxPrice || ''}
               onChange={(e) => onBoxPriceChange(Number(e.target.value) || 0)}
               placeholder="Ex. 90"
               className="text-right"
@@ -78,7 +82,7 @@ export function AdditionalCharges({
             <Input
               id="vendorCharge"
               type="number"
-              value={vendorCharge || ""}
+              value={vendorCharge || ''}
               onChange={(e) =>
                 onVendorChargeChange(Number(e.target.value) || 0)
               }
@@ -100,7 +104,7 @@ export function AdditionalCharges({
             <Input
               id="coldStorage"
               type="number"
-              value={coldStorage || ""}
+              value={coldStorage || ''}
               placeholder="Ex. 20000"
               onChange={(e) => onColdStorageChange(Number(e.target.value) || 0)}
               className="text-right"
@@ -117,7 +121,7 @@ export function AdditionalCharges({
             <Input
               id="localTransport"
               type="number"
-              value={localTransport || ""}
+              value={localTransport || ''}
               onChange={(e) =>
                 onLocalTransportChange(Number(e.target.value) || 0)
               }
@@ -139,7 +143,7 @@ export function AdditionalCharges({
             <Input
               id="packingMaterial"
               type="number"
-              value={packingMaterial || ""}
+              value={packingMaterial || ''}
               onChange={(e) =>
                 onPackingMaterialChange(Number(e.target.value) || 0)
               }
@@ -158,11 +162,31 @@ export function AdditionalCharges({
             <Input
               id="companyCharges"
               type="number"
-              value={companyCharges || ""}
+              value={companyCharges || ''}
               onChange={(e) =>
                 onCompanyChargesChange(Number(e.target.value) || 0)
               }
               placeholder="Ex. 100000"
+              className="text-right"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4">
+          <div className="space-y-2">
+            <Label
+              htmlFor="caCharges"
+              className="text-sm font-medium flex items-center gap-2"
+            >
+              <Users className="h-4 w-4" />
+              CHA Charges (₹)
+            </Label>
+            <Input
+              id="chaCharges"
+              type="number"
+              value={chaCharges || ''}
+              onChange={(e) => onChaChargesChange(Number(e.target.value) || 0)}
+              placeholder="Ex. 145000"
               className="text-right"
             />
           </div>

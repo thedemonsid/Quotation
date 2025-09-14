@@ -1,4 +1,4 @@
-import { useCalculationStore } from "@/store/calculation";
+import { useCalculationStore } from '@/store/calculation';
 
 export function useCalculations() {
   const store = useCalculationStore();
@@ -16,6 +16,7 @@ export function useCalculations() {
     localTransport,
     packingMaterial,
     companyCharges,
+    chaCharges,
     setNoOfBoxes,
     setBoxWeight,
     setDandaPercentage,
@@ -26,6 +27,7 @@ export function useCalculations() {
     setLocalTransport,
     setPackingMaterial,
     setCompanyCharges,
+    setChaCharges,
     getTotalWeight,
     getTotalCost,
     getTotalCharges,
@@ -51,6 +53,7 @@ export function useCalculations() {
     localTransport,
     packingMaterial,
     companyCharges,
+    chaCharges,
 
     // Derived values
     grossWeight,
@@ -71,6 +74,7 @@ export function useCalculations() {
     setLocalTransport,
     setPackingMaterial,
     setCompanyCharges,
+    setChaCharges,
     resetCalculation,
   };
 }

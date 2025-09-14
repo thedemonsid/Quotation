@@ -1,6 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { TrendingUp } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { TrendingUp } from 'lucide-react';
 
 interface CostSummaryProps {
   weightCost: number;
@@ -9,6 +9,7 @@ interface CostSummaryProps {
   localTransport: number;
   packingMaterial: number;
   companyCharges: number;
+  chaCharges: number;
   boxPrice?: number;
   grandTotal: number;
   noOfBoxes: number;
@@ -21,6 +22,7 @@ export function CostSummary({
   localTransport,
   packingMaterial,
   companyCharges,
+  chaCharges,
   boxPrice,
   grandTotal,
   noOfBoxes,
@@ -69,6 +71,12 @@ export function CostSummary({
             <span className="text-sm text-gray-600">Company Charges:</span>
             <span className="font-mono font-medium">
               ₹{companyCharges.toLocaleString()}
+            </span>
+          </div>
+          <div className="flex justify-between items-center py-2">
+            <span className="text-sm text-gray-600">CHA Charges:</span>
+            <span className="font-mono font-medium">
+              ₹{chaCharges.toLocaleString()}
             </span>
           </div>
           {boxPrice && boxPrice > 0 && (

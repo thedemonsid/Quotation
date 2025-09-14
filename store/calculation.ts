@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
 type State = {
   noOfBoxes: number;
@@ -13,6 +13,7 @@ type State = {
   localTransport: number;
   packingMaterial: number;
   companyCharges: number;
+  chaCharges: number;
 };
 
 type Action = {
@@ -28,6 +29,7 @@ type Action = {
   setLocalTransport: (localTransport: number) => void;
   setPackingMaterial: (packingMaterial: number) => void;
   setCompanyCharges: (companyCharges: number) => void;
+  setChaCharges: (chaCharges: number) => void;
   updateCalculation: (updates: Partial<State>) => void;
   resetCalculation: () => void;
   getTotalWeight: () => number;
@@ -63,6 +65,7 @@ const initialState: State = {
   localTransport: 15000,
   packingMaterial: 38000,
   companyCharges: 100000, // Default 1 lakh rs
+  chaCharges: 145000, // Default 145,000 rs
 };
 
 export const useCalculationStore = create<State & Action>((set, get) => {
@@ -130,6 +133,7 @@ export const useCalculationStore = create<State & Action>((set, get) => {
     setLocalTransport: (localTransport) => set({ localTransport }),
     setPackingMaterial: (packingMaterial) => set({ packingMaterial }),
     setCompanyCharges: (companyCharges) => set({ companyCharges }),
+    setChaCharges: (chaCharges) => set({ chaCharges }),
 
     updateCalculation: (updates) => {
       set((state) => ({ ...state, ...updates }));
@@ -182,6 +186,7 @@ export const useCalculationStore = create<State & Action>((set, get) => {
         localTransport,
         packingMaterial,
         companyCharges,
+        chaCharges,
         boxPrice,
         noOfBoxes,
       } = get();
@@ -191,6 +196,7 @@ export const useCalculationStore = create<State & Action>((set, get) => {
         Number(localTransport) +
         Number(packingMaterial) +
         Number(companyCharges) +
+        Number(chaCharges) +
         Number(boxPrice * noOfBoxes)
       );
     },

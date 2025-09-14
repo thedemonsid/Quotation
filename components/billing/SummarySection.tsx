@@ -1,5 +1,5 @@
-import { WeightSummary } from "./WeightSummary";
-import { CostSummary } from "./CostSummary";
+import { WeightSummary } from './WeightSummary';
+import { CostSummary } from './CostSummary';
 
 interface SummarySectionProps {
   grossWeight: number;
@@ -15,6 +15,7 @@ interface SummarySectionProps {
   localTransport: number;
   packingMaterial: number;
   companyCharges: number;
+  chaCharges: number;
   grandTotal: number;
   noOfBoxes: number;
 }
@@ -33,6 +34,7 @@ export function SummarySection({
   localTransport,
   packingMaterial,
   companyCharges,
+  chaCharges,
   grandTotal,
   noOfBoxes,
 }: SummarySectionProps) {
@@ -55,6 +57,7 @@ export function SummarySection({
         localTransport={localTransport}
         packingMaterial={packingMaterial}
         companyCharges={companyCharges}
+        chaCharges={chaCharges}
         grandTotal={grandTotal}
         noOfBoxes={noOfBoxes}
       />
