@@ -1,11 +1,11 @@
-"use client";
-import React, { useRef } from "react";
-import { useReactToPrint } from "react-to-print";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Printer, Phone, Mail, MapPin } from "lucide-react";
-import { useQuotationStore } from "@/store/quotation";
-import type { QuotationData } from "@/types/quotation";
+'use client';
+import React, { useRef } from 'react';
+import { useReactToPrint } from 'react-to-print';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Printer, Phone, Mail, MapPin } from 'lucide-react';
+import { useQuotationStore } from '@/store/quotation';
+import type { QuotationData } from '@/types/quotation';
 
 interface QuotationTemplateProps {
   data: QuotationData;
@@ -48,12 +48,12 @@ const QuotationTemplate: React.FC<QuotationTemplateProps> = ({ data }) => {
             <div className="flex-1 w-full lg:w-auto print:w-auto">
               <h1 className="text-xl sm:text-2xl print:text-2xl font-bold text-slate-800 mb-1 break-words print:break-normal">
                 <span className="text-cyan-600">
-                  {companyDetails.name.split(" ")[0]}{" "}
-                  {companyDetails.name.split(" ")[1]}
+                  {companyDetails.name.split(' ')[0]}{' '}
+                  {companyDetails.name.split(' ')[1]}
                 </span>
                 <span className="text-slate-700">
-                  {" "}
-                  {companyDetails.name.split(" ").slice(2).join(" ")}
+                  {' '}
+                  {companyDetails.name.split(' ').slice(2).join(' ')}
                 </span>
               </h1>
               <p className="text-xs text-slate-600 font-medium mb-2 break-words print:break-normal">
@@ -88,20 +88,20 @@ const QuotationTemplate: React.FC<QuotationTemplateProps> = ({ data }) => {
                   <p>
                     <span className="font-semibold text-slate-700">
                       Quotation#:
-                    </span>{" "}
+                    </span>{' '}
                     <span className="break-all print:break-normal">
                       {data.quotationNumber}
                     </span>
                   </p>
                   <p>
-                    <span className="font-semibold text-slate-700">Date:</span>{" "}
+                    <span className="font-semibold text-slate-700">Date:</span>{' '}
                     {data.date}
                   </p>
                   {data.validityPeriod && (
                     <p>
                       <span className="font-semibold text-slate-700">
                         Valid Until:
-                      </span>{" "}
+                      </span>{' '}
                       {data.validityPeriod}
                     </p>
                   )}
@@ -133,6 +133,19 @@ const QuotationTemplate: React.FC<QuotationTemplateProps> = ({ data }) => {
                 </p>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* LUT Statement for Export */}
+        <div className="mb-4">
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded">
+            <p className="text-xs sm:text-sm font-semibold text-yellow-800">
+              Supply Meant For Export Under Letter of Undertaking Without
+              Payment Of Integrated Goods and Service Tax(IGST)
+            </p>
+            <p className="text-xs sm:text-sm font-semibold text-yellow-800 mt-1">
+              LUT NO- AD270925026009Y
+            </p>
           </div>
         </div>
 
@@ -311,17 +324,17 @@ export default QuotationTemplate;
 // Sample data for testing
 export const sampleQuotationData: QuotationData = {
   quotationNumber: "Quote-banana ventures shinde's",
-  date: "12-07-2025",
-  customerName: "Green World International LLC",
-  customerAddress: "Iran",
-  customerPhone: "+98 9122339891",
-  customerEmail: "manager@greenworldintco.com",
+  date: '12-07-2025',
+  customerName: 'Green World International LLC',
+  customerAddress: 'Iran',
+  customerPhone: '+98 9122339891',
+  customerEmail: 'manager@greenworldintco.com',
   items: [
     {
-      id: "1",
-      description: "Banana box 13 kg NW",
+      id: '1',
+      description: 'Banana box 13 kg NW',
       quantity: 1540,
-      unit: "box",
+      unit: 'box',
       rate: 8.02,
       amount: 12350.8,
     },
@@ -330,12 +343,12 @@ export const sampleQuotationData: QuotationData = {
   tax: 0,
   discount: 0.8,
   total: 12350.0,
-  validityPeriod: "2025-07-25",
+  validityPeriod: '2025-07-25',
   terms: [
-    "Terms & Conditions: CIF",
+    'Terms & Conditions: CIF',
     "Payment Instructions: Banana Ventures Shinde's",
-    "Account - 60521459884",
-    "IFSC code - MAHB00011669",
-    "GSTIN: 27SYEPS7484G1ZC",
+    'Account - 60521459884',
+    'IFSC code - MAHB00011669',
+    'GSTIN: 27SYEPS7484G1ZC',
   ],
 };
