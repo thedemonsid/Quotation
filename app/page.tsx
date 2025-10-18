@@ -1,13 +1,13 @@
-'use client';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
-import { Header } from '@/components/billing';
-import { InputSection } from '@/components/billing';
-import { SummarySection } from '@/components/billing';
-import { Button } from '@/components/ui/button';
-import { useCalculations } from '@/hooks/useCalculations';
-import { FileText, DollarSign, Lock } from 'lucide-react';
+"use client";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
+import { Header } from "@/components/billing";
+import { InputSection } from "@/components/billing";
+import { SummarySection } from "@/components/billing";
+import { Button } from "@/components/ui/button";
+import { useCalculations } from "@/hooks/useCalculations";
+import { FileText, DollarSign, Lock, Receipt } from "lucide-react";
 
 export default function Home() {
   const [isHydrated, setIsHydrated] = useState(false);
@@ -52,7 +52,12 @@ export default function Home() {
 
   const handleCreateQuotation = () => {
     // Navigate to quotation template page
-    router.push('/quotation-template');
+    router.push("/quotation-template");
+  };
+
+  const handleCreateBill = () => {
+    // Navigate to bill page
+    router.push("/bill");
   };
 
   // Prevent hydration mismatch by showing loading state until hydrated
@@ -91,21 +96,38 @@ export default function Home() {
         <Header />
 
         <div className="container mx-auto max-w-6xl px-6 py-8">
-          {/* Create Quotation Button */}
-          <div className="mb-8 text-center">
-            <Button
-              onClick={handleCreateQuotation}
-              size="lg"
-              className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-semibold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-            >
-              <FileText className="w-5 h-5 mr-2" />
-              Create Quotation
-              <DollarSign className="w-5 h-5 ml-2" />
-            </Button>
-            <p className="mt-2 text-sm text-gray-600">
-              Generate a professional quotation with automatic INR to USD
-              conversion
-            </p>
+          {/* Create Quotation and Bill Buttons */}
+          <div className="mb-8 text-center space-y-4">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button
+                onClick={handleCreateQuotation}
+                size="lg"
+                className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-semibold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              >
+                <FileText className="w-5 h-5 mr-2" />
+                Create Quotation
+                <DollarSign className="w-5 h-5 ml-2" />
+              </Button>
+
+              <Button
+                onClick={handleCreateBill}
+                size="lg"
+                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              >
+                <Receipt className="w-5 h-5 mr-2" />
+                Generate Bill / Invoice
+                <DollarSign className="w-5 h-5 ml-2" />
+              </Button>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-gray-600">
+                Generate a professional quotation with automatic INR to USD
+                conversion
+              </p>
+              <p className="text-sm text-gray-600">
+                Or create a tax invoice/bill with GST calculation
+              </p>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
