@@ -43,8 +43,7 @@ const BillPage: React.FC = () => {
     otherCharges,
     total,
     paymentDetails,
-    notes,
-    termsAndConditions,
+
     updateCompanyDetails,
     updateCustomerDetails,
     updateBillDetails,
@@ -56,8 +55,7 @@ const BillPage: React.FC = () => {
     setOtherCharges,
     setTax,
     updatePaymentDetails,
-    updateNotes,
-    updateTerms,
+
     calculateTotal,
     getBillData,
   } = useBillStore();

@@ -127,6 +127,12 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
     return words.trim();
   };
 
+  // Ensure optional numeric fields have safe defaults for rendering
+  const discountValue = data.discount ?? 0;
+  const discountPercent = data.discountPercentage ?? 0;
+  const shippingValue = data.shippingCharges ?? 0;
+  const otherValue = data.otherCharges ?? 0;
+
   return (
     <div className="w-full max-w-4xl mx-auto p-2 sm:p-4 bg-gray-50 min-h-screen">
       <div className="mb-3 sm:mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 print:hidden">
@@ -317,16 +323,12 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
               <span className="font-semibold">{formatINR(data.subtotal)}</span>
             </div>
 
-            {data.discount > 0 && (
+            {discountValue > 0 && (
               <div className="flex justify-between p-2 border-b border-slate-300 text-red-600">
                 <span>
-                  Discount{" "}
-                  {data.discountPercentage > 0
-                    ? `(${data.discountPercentage}%)`
-                    : ""}
-                  :
+                  Discount {discountPercent > 0 ? `(${discountPercent}%)` : ""}:
                 </span>
-                <span>- {formatINR(data.discount)}</span>
+                <span>- {formatINR(discountValue)}</span>
               </div>
             )}
 
@@ -337,7 +339,7 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
                     <span>CGST ({data.tax.cgst}%):</span>
                     <span>
                       {formatINR(
-                        ((data.subtotal - data.discount) * data.tax.cgst) / 100
+                        ((data.subtotal - discountValue) * data.tax.cgst) / 100
                       )}
                     </span>
                   </div>
@@ -347,7 +349,7 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
                     <span>SGST ({data.tax.sgst}%):</span>
                     <span>
                       {formatINR(
-                        ((data.subtotal - data.discount) * data.tax.sgst) / 100
+                        ((data.subtotal - discountValue) * data.tax.sgst) / 100
                       )}
                     </span>
                   </div>
@@ -357,7 +359,7 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
                     <span>IGST ({data.tax.igst}%):</span>
                     <span>
                       {formatINR(
-                        ((data.subtotal - data.discount) * data.tax.igst) / 100
+                        ((data.subtotal - discountValue) * data.tax.igst) / 100
                       )}
                     </span>
                   </div>
@@ -365,17 +367,17 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
               </>
             )}
 
-            {data.shippingCharges > 0 && (
+            {shippingValue > 0 && (
               <div className="flex justify-between p-2 border-b border-slate-300">
                 <span>Shipping Charges:</span>
-                <span>{formatINR(data.shippingCharges)}</span>
+                <span>{formatINR(shippingValue)}</span>
               </div>
             )}
 
-            {data.otherCharges > 0 && (
+            {otherValue > 0 && (
               <div className="flex justify-between p-2 border-b border-slate-300">
                 <span>Other Charges:</span>
-                <span>{formatINR(data.otherCharges)}</span>
+                <span>{formatINR(otherValue)}</span>
               </div>
             )}
 
