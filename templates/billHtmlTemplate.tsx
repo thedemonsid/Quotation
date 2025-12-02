@@ -3,7 +3,8 @@ import React, { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Printer, IndianRupee } from "lucide-react";
+import { Printer, IndianRupee, DollarSign } from "lucide-react";
+import { useCurrency } from "@/hooks/useCurrency";
 import type { BillData } from "@/types/bill";
 
 interface BillTemplateProps {
@@ -25,6 +26,7 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
   companyDetails,
 }) => {
   const contentRef = useRef<HTMLDivElement>(null);
+  const { convertToUSD, formatCurrency, getExchangeRateInfo } = useCurrency();
 
   const reactToPrintFn = useReactToPrint({
     contentRef,
@@ -40,6 +42,14 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
       maximumFractionDigits: 2,
     }).format(amount);
   };
+
+  // Format USD
+  const formatUSD = (amount: number) => {
+    return formatCurrency(convertToUSD(amount), "USD");
+  };
+
+  // Get exchange rate info for display
+  const exchangeRateInfo = getExchangeRateInfo();
 
   // Convert number to words (for Indian numbering)
   const numberToWords = (num: number): string => {
@@ -317,10 +327,17 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
 
         {/* Financial Summary */}
         <div className="mb-4 flex justify-end">
-          <div className="w-full md:w-1/2 border border-slate-300">
-            <div className="flex justify-between p-2 border-b border-slate-300">
+          <div className="w-full md:w-2/3 border border-slate-300">
+            <div className="flex justify-between p-2 border-b border-slate-300 bg-slate-50">
               <span className="font-semibold">Subtotal:</span>
-              <span className="font-semibold">{formatINR(data.subtotal)}</span>
+              <div className="text-right">
+                <span className="font-semibold">
+                  {formatINR(data.subtotal)}
+                </span>
+                <span className="text-sm text-slate-500 ml-2">
+                  ({formatUSD(data.subtotal)})
+                </span>
+              </div>
             </div>
 
             {discountValue > 0 && (
@@ -328,7 +345,12 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
                 <span>
                   Discount {discountPercent > 0 ? `(${discountPercent}%)` : ""}:
                 </span>
-                <span>- {formatINR(discountValue)}</span>
+                <div className="text-right">
+                  <span>- {formatINR(discountValue)}</span>
+                  <span className="text-sm ml-2">
+                    (- {formatUSD(discountValue)})
+                  </span>
+                </div>
               </div>
             )}
 
@@ -337,31 +359,64 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
                 {data.tax.cgst && (
                   <div className="flex justify-between p-2 border-b border-slate-300">
                     <span>CGST ({data.tax.cgst}%):</span>
-                    <span>
-                      {formatINR(
-                        ((data.subtotal - discountValue) * data.tax.cgst) / 100
-                      )}
-                    </span>
+                    <div className="text-right">
+                      <span>
+                        {formatINR(
+                          ((data.subtotal - discountValue) * data.tax.cgst) /
+                            100
+                        )}
+                      </span>
+                      <span className="text-sm text-slate-500 ml-2">
+                        (
+                        {formatUSD(
+                          ((data.subtotal - discountValue) * data.tax.cgst) /
+                            100
+                        )}
+                        )
+                      </span>
+                    </div>
                   </div>
                 )}
                 {data.tax.sgst && (
                   <div className="flex justify-between p-2 border-b border-slate-300">
                     <span>SGST ({data.tax.sgst}%):</span>
-                    <span>
-                      {formatINR(
-                        ((data.subtotal - discountValue) * data.tax.sgst) / 100
-                      )}
-                    </span>
+                    <div className="text-right">
+                      <span>
+                        {formatINR(
+                          ((data.subtotal - discountValue) * data.tax.sgst) /
+                            100
+                        )}
+                      </span>
+                      <span className="text-sm text-slate-500 ml-2">
+                        (
+                        {formatUSD(
+                          ((data.subtotal - discountValue) * data.tax.sgst) /
+                            100
+                        )}
+                        )
+                      </span>
+                    </div>
                   </div>
                 )}
                 {data.tax.igst && (
                   <div className="flex justify-between p-2 border-b border-slate-300">
                     <span>IGST ({data.tax.igst}%):</span>
-                    <span>
-                      {formatINR(
-                        ((data.subtotal - discountValue) * data.tax.igst) / 100
-                      )}
-                    </span>
+                    <div className="text-right">
+                      <span>
+                        {formatINR(
+                          ((data.subtotal - discountValue) * data.tax.igst) /
+                            100
+                        )}
+                      </span>
+                      <span className="text-sm text-slate-500 ml-2">
+                        (
+                        {formatUSD(
+                          ((data.subtotal - discountValue) * data.tax.igst) /
+                            100
+                        )}
+                        )
+                      </span>
+                    </div>
                   </div>
                 )}
               </>
@@ -370,25 +425,50 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
             {shippingValue > 0 && (
               <div className="flex justify-between p-2 border-b border-slate-300">
                 <span>Shipping Charges:</span>
-                <span>{formatINR(shippingValue)}</span>
+                <div className="text-right">
+                  <span>{formatINR(shippingValue)}</span>
+                  <span className="text-sm text-slate-500 ml-2">
+                    ({formatUSD(shippingValue)})
+                  </span>
+                </div>
               </div>
             )}
 
             {otherValue > 0 && (
               <div className="flex justify-between p-2 border-b border-slate-300">
                 <span>Other Charges:</span>
-                <span>{formatINR(otherValue)}</span>
+                <div className="text-right">
+                  <span>{formatINR(otherValue)}</span>
+                  <span className="text-sm text-slate-500 ml-2">
+                    ({formatUSD(otherValue)})
+                  </span>
+                </div>
               </div>
             )}
 
-            <div className="flex justify-between p-2 bg-slate-100 font-bold text-lg">
-              <span>Total Amount:</span>
+            {/* Total in INR */}
+            <div className="flex justify-between p-3 bg-green-50 font-bold text-lg border-b border-slate-300">
               <span className="flex items-center">
                 <IndianRupee className="w-5 h-5 mr-1" />
-                {formatINR(data.total).replace("₹", "")}
+                Total (INR):
               </span>
+              <span className="text-green-700">{formatINR(data.total)}</span>
+            </div>
+
+            {/* Total in USD */}
+            <div className="flex justify-between p-3 bg-blue-50 font-bold text-lg">
+              <span className="flex items-center">
+                <DollarSign className="w-5 h-5 mr-1" />
+                Total (USD):
+              </span>
+              <span className="text-blue-700">{formatUSD(data.total)}</span>
             </div>
           </div>
+        </div>
+
+        {/* Exchange Rate Note */}
+        <div className="mb-4 text-xs text-slate-500 text-right">
+          Exchange Rate: {exchangeRateInfo.formattedRate}
         </div>
 
         {/* Amount in Words */}
