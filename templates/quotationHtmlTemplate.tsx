@@ -210,7 +210,7 @@ const QuotationTemplate: React.FC<QuotationTemplateProps> = ({ data }) => {
                       </td>
                       <td className="py-1">
                         <Input
-                          value={itemDescriptions[item.id] || item.description}
+                          value={itemDescriptions[item.id]}
                           onChange={(e) =>
                             handleDescriptionChange(item.id, e.target.value)
                           }
