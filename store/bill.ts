@@ -23,6 +23,7 @@ export interface BillCustomerDetails {
 export interface BillDetails {
   billNumber: string;
   billDate: string;
+  containerNumber?: string;
   dueDate?: string;
   purchaseOrderNumber?: string;
   purchaseOrderDate?: string;
@@ -130,6 +131,7 @@ const defaultCustomerDetails: BillCustomerDetails = {
 const defaultBillDetails: BillDetails = {
   billNumber: `BILL-${Date.now()}`,
   billDate: new Date().toISOString().split("T")[0],
+  containerNumber: "",
   dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000)
     .toISOString()
     .split("T")[0], // 15 days from now
@@ -208,7 +210,7 @@ export const useBillStore = create<BillState & BillActions>((set, get) => ({
   updateItem: (id, itemUpdate) => {
     set((state) => ({
       items: state.items.map((item) =>
-        item.id === id ? { ...item, ...itemUpdate } : item
+        item.id === id ? { ...item, ...itemUpdate } : item,
       ),
     }));
     get().calculateTotal();
@@ -301,7 +303,7 @@ export const useBillStore = create<BillState & BillActions>((set, get) => ({
   removeTerm: (index) =>
     set((state) => ({
       termsAndConditions: state.termsAndConditions.filter(
-        (_, i) => i !== index
+        (_, i) => i !== index,
       ),
     })),
 
@@ -335,6 +337,7 @@ export const useBillStore = create<BillState & BillActions>((set, get) => ({
     return {
       billNumber: state.billDetails.billNumber,
       billDate: state.billDetails.billDate,
+      containerNumber: state.billDetails.containerNumber,
       dueDate: state.billDetails.dueDate,
       purchaseOrderNumber: state.billDetails.purchaseOrderNumber,
       purchaseOrderDate: state.billDetails.purchaseOrderDate,

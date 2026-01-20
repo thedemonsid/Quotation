@@ -30,7 +30,7 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
 
   const reactToPrintFn = useReactToPrint({
     contentRef,
-    documentTitle: `Bill-${data.billNumber}`,
+    documentTitle: `Invoice-${data.billNumber}`,
   });
 
   // Format currency
@@ -143,6 +143,11 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
   const shippingValue = data.shippingCharges ?? 0;
   const otherValue = data.otherCharges ?? 0;
 
+  // Calculate total weight from all items
+  const calculateTotalWeight = (): number => {
+    return data.items.reduce((sum, item) => sum + item.quantity, 0);
+  };
+
   return (
     <div className="w-full max-w-4xl mx-auto p-2 sm:p-4 bg-gray-50 min-h-screen">
       <div className="mb-3 sm:mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 print:hidden">
@@ -183,7 +188,7 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
             </div>
             <div className="text-right">
               <h2 className="text-3xl font-bold text-slate-800 border-b-2 border-slate-800 pb-1">
-                TAX INVOICE
+                INVOICE
               </h2>
             </div>
           </div>
@@ -216,9 +221,14 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
                 {data.billNumber}
               </p>
               <p>
-                <span className="font-semibold">Invoice Date:</span>{" "}
-                {data.billDate}
+                <span className="font-semibold">Date:</span> {data.billDate}
               </p>
+              {data.containerNumber && (
+                <p>
+                  <span className="font-semibold">Container No:</span>{" "}
+                  {data.containerNumber}
+                </p>
+              )}
               {data.dueDate && (
                 <p>
                   <span className="font-semibold">Due Date:</span>{" "}
@@ -267,60 +277,127 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
           </div>
         </div>
 
-        {/* Items Table */}
+        {/* Items Table - New Format */}
         <div className="mb-4">
-          <table className="w-full border-collapse border border-slate-300 text-sm">
+          <table className="w-full border-collapse border-2 border-slate-800 text-sm">
             <thead>
               <tr className="bg-slate-100">
-                <th className="border border-slate-300 p-2 text-left font-semibold">
-                  S.No
+                <th className="border border-slate-800 p-2 text-center font-semibold w-12">
+                  NO.
                 </th>
-                <th className="border border-slate-300 p-2 text-left font-semibold">
-                  Description
+                <th className="border border-slate-800 p-2 text-left font-semibold">
+                  DESCRIPTION
                 </th>
-                {data.items.some((item) => item.hsn) && (
-                  <th className="border border-slate-300 p-2 text-left font-semibold">
-                    HSN/SAC
-                  </th>
-                )}
-                <th className="border border-slate-300 p-2 text-right font-semibold">
-                  Qty
+                <th className="border border-slate-800 p-2 text-center font-semibold w-24">
+                  QUANTITY
+                  <br />
+                  IN KG
                 </th>
-                <th className="border border-slate-300 p-2 text-left font-semibold">
-                  Unit
+                <th className="border border-slate-800 p-2 text-center font-semibold w-20">
+                  RATE
+                  <br />
+                  PER KG
                 </th>
-                <th className="border border-slate-300 p-2 text-right font-semibold">
-                  Rate
-                </th>
-                <th className="border border-slate-300 p-2 text-right font-semibold">
-                  Amount
+                <th className="border border-slate-800 p-2 text-center font-semibold w-24">
+                  AMOUNT
+                  <br />
+                  IN RS.
                 </th>
               </tr>
             </thead>
             <tbody>
               {data.items.map((item, index) => (
                 <tr key={item.id}>
-                  <td className="border border-slate-300 p-2">{index + 1}</td>
-                  <td className="border border-slate-300 p-2">
-                    {item.description}
+                  <td className="border border-slate-800 p-2 text-center align-top">
+                    {index + 1}
                   </td>
-                  {data.items.some((i) => i.hsn) && (
-                    <td className="border border-slate-300 p-2">
-                      {item.hsn || "-"}
-                    </td>
-                  )}
-                  <td className="border border-slate-300 p-2 text-right">
-                    {item.quantity}
+                  <td className="border border-slate-800 p-2 align-top">
+                    <div>
+                      <p className="font-medium mb-2">{item.description}</p>
+
+                      {/* Nested Box Weight Table */}
+                      {item.boxWeightEntries &&
+                        item.boxWeightEntries.length > 0 && (
+                          <table className="w-full border border-slate-400 text-xs mt-2">
+                            <thead>
+                              <tr className="bg-slate-50">
+                                <th className="border border-slate-400 p-1 text-left">
+                                  No. of Boxes
+                                </th>
+                                <th className="border border-slate-400 p-1 text-left">
+                                  Wt. per Carton
+                                </th>
+                                <th className="border border-slate-400 p-1 text-left">
+                                  Total Wt
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {item.boxWeightEntries.map(
+                                (entry, entryIndex) => (
+                                  <tr key={entryIndex}>
+                                    <td className="border border-slate-400 p-1">
+                                      {entry.numberOfBoxes}
+                                    </td>
+                                    <td className="border border-slate-400 p-1">
+                                      {entry.weight} kg
+                                    </td>
+                                    <td className="border border-slate-400 p-1">
+                                      {entry.totalWeight.toFixed(2)}
+                                    </td>
+                                  </tr>
+                                ),
+                              )}
+                              <tr className="font-semibold bg-slate-50">
+                                <td
+                                  className="border border-slate-400 p-1"
+                                  colSpan={2}
+                                >
+                                  Total wt
+                                </td>
+                                <td className="border border-slate-400 p-1">
+                                  {item.boxWeightEntries
+                                    .reduce((sum, e) => sum + e.totalWeight, 0)
+                                    .toFixed(2)}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        )}
+                    </div>
                   </td>
-                  <td className="border border-slate-300 p-2">{item.unit}</td>
-                  <td className="border border-slate-300 p-2 text-right">
+                  <td className="border border-slate-800 p-2 text-right align-top">
+                    {item.quantity.toFixed(2)}
+                  </td>
+                  <td className="border border-slate-800 p-2 text-right align-top">
                     {formatINR(item.rate)}
                   </td>
-                  <td className="border border-slate-300 p-2 text-right font-semibold">
+                  <td className="border border-slate-800 p-2 text-right align-top font-semibold">
                     {formatINR(item.amount)}
                   </td>
                 </tr>
               ))}
+
+              {/* Total Weight and Amount Row */}
+              <tr className="bg-slate-100 font-bold">
+                <td className="border border-slate-800 p-2" colSpan={2}>
+                  <div>
+                    <span>In words - Rupees: </span>
+                    <span className="italic font-normal">
+                      {numberToWords(data.total)} Only
+                    </span>
+                  </div>
+                </td>
+                <td className="border border-slate-800 p-2 text-right">
+                  {calculateTotalWeight().toFixed(2)}
+                </td>
+                <td className="border border-slate-800 p-2 text-center">
+                  Total Rs.
+                </td>
+                <td className="border border-slate-800 p-2 text-right">
+                  {formatINR(data.total)}
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -363,14 +440,14 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
                       <span>
                         {formatINR(
                           ((data.subtotal - discountValue) * data.tax.cgst) /
-                            100
+                            100,
                         )}
                       </span>
                       <span className="text-sm text-slate-500 ml-2">
                         (
                         {formatUSD(
                           ((data.subtotal - discountValue) * data.tax.cgst) /
-                            100
+                            100,
                         )}
                         )
                       </span>
@@ -384,14 +461,14 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
                       <span>
                         {formatINR(
                           ((data.subtotal - discountValue) * data.tax.sgst) /
-                            100
+                            100,
                         )}
                       </span>
                       <span className="text-sm text-slate-500 ml-2">
                         (
                         {formatUSD(
                           ((data.subtotal - discountValue) * data.tax.sgst) /
-                            100
+                            100,
                         )}
                         )
                       </span>
@@ -405,14 +482,14 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
                       <span>
                         {formatINR(
                           ((data.subtotal - discountValue) * data.tax.igst) /
-                            100
+                            100,
                         )}
                       </span>
                       <span className="text-sm text-slate-500 ml-2">
                         (
                         {formatUSD(
                           ((data.subtotal - discountValue) * data.tax.igst) /
-                            100
+                            100,
                         )}
                         )
                       </span>
@@ -469,14 +546,6 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
         {/* Exchange Rate Note */}
         <div className="mb-4 text-xs text-slate-500 text-right">
           Exchange Rate: {exchangeRateInfo.formattedRate}
-        </div>
-
-        {/* Amount in Words */}
-        <div className="mb-4 border border-slate-300 p-3 bg-slate-50">
-          <p className="text-sm">
-            <span className="font-semibold">Amount in Words:</span>{" "}
-            <span className="italic">{numberToWords(data.total)} Only</span>
-          </p>
         </div>
 
         {/* Payment Details */}
@@ -537,14 +606,35 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
         )}
 
         {/* Signature Section */}
-        <div className="mt-8 flex justify-between items-end">
-          <div className="text-xs text-slate-600">
-            <p className="italic">This is a computer generated invoice</p>
+        <div className="mt-8 border-t-2 border-slate-800 pt-4">
+          <div className="flex justify-end mb-12">
+            <div className="text-center">
+              <p className="font-semibold">Authorized Signatory for APACS</p>
+            </div>
           </div>
-          <div className="text-center">
-            <div className="border-t-2 border-slate-800 pt-2 mt-16 min-w-[200px]">
-              <p className="font-semibold text-sm">Authorized Signatory</p>
-              <p className="text-xs text-slate-600">{companyDetails.name}</p>
+
+          <div className="space-y-4 text-sm">
+            <div className="flex items-center">
+              <span>Name of</span>
+              <span className="mx-2 border-b border-black flex-grow"></span>
+              <span>packhouse incharge</span>
+            </div>
+            <div className="flex items-center">
+              <span>Sign of</span>
+              <span className="mx-2 border-b border-black flex-grow"></span>
+              <span>packhouse incharge</span>
+            </div>
+          </div>
+
+          <div className="mt-8 flex justify-between items-end">
+            <div className="text-xs text-slate-600">
+              <p className="italic">This is a computer generated invoice</p>
+            </div>
+            <div className="text-center">
+              <div className="border-t-2 border-slate-800 pt-2 mt-8 min-w-[200px]">
+                <p className="font-semibold text-sm">Authorized Signatory</p>
+                <p className="text-xs text-slate-600">{companyDetails.name}</p>
+              </div>
             </div>
           </div>
         </div>

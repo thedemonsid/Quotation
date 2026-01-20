@@ -1,11 +1,19 @@
+export interface BoxWeightEntry {
+  weight: number; // Weight per carton in kg (e.g., 4.0, 4.5, 5.0, 8.0, 8.2)
+  numberOfBoxes: number;
+  totalWeight: number; // numberOfBoxes * weight
+}
+
 export interface BillItem {
   id: string;
   description: string;
   hsn?: string; // HSN/SAC code
-  quantity: number;
+  quantity: number; // Total quantity in KG
   unit: string;
-  rate: number;
-  amount: number;
+  rate: number; // Rate per KG
+  amount: number; // Total amount in RS
+  // Box weight details for the nested table
+  boxWeightEntries?: BoxWeightEntry[];
 }
 
 export interface TaxDetails {
@@ -18,6 +26,7 @@ export interface TaxDetails {
 export interface BillData {
   billNumber: string;
   billDate: string;
+  containerNumber?: string;
   dueDate?: string;
   purchaseOrderNumber?: string;
   purchaseOrderDate?: string;
