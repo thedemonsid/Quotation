@@ -2,6 +2,9 @@ export interface BoxWeightEntry {
   weight: number; // Weight per carton in kg (e.g., 4.0, 4.5, 5.0, 8.0, 8.2)
   numberOfBoxes: number;
   totalWeight: number; // numberOfBoxes * weight
+  rate?: number; // Rate per KG or per Box
+  rateType?: "kg" | "box"; // Whether rate is per KG or per Box
+  amount?: number; // Calculated amount for this entry
 }
 
 export interface BillItem {
