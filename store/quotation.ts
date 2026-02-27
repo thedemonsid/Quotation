@@ -26,6 +26,7 @@ export interface QuotationDetails {
 
 export interface CurrencyState {
   exchangeRate: number; // INR to USD
+  exchangeRateEUR: number; // INR to EUR
   lastUpdated: string;
   isLoading: boolean;
   error: string | null;
@@ -58,6 +59,7 @@ interface QuotationActions {
 
   // Currency actions
   updateExchangeRate: (rate: number) => void;
+  updateExchangeRates: (rates: { usd: number; eur: number }) => void;
   setExchangeRateLoading: (loading: boolean) => void;
   setExchangeRateError: (error: string | null) => void;
 
@@ -100,6 +102,7 @@ const defaultQuotationDetails: QuotationDetails = {
 
 const defaultCurrencyState: CurrencyState = {
   exchangeRate: 0.012, // Default fallback rate (1 INR = 0.012 USD approximately)
+  exchangeRateEUR: 0.011, // Default fallback (1 INR ≈ 0.011 EUR)
   lastUpdated: new Date().toISOString(),
   isLoading: false,
   error: null,
@@ -154,6 +157,17 @@ export const useQuotationStore = create<QuotationState & QuotationActions>(
         currency: {
           ...state.currency,
           exchangeRate: rate,
+          lastUpdated: new Date().toISOString(),
+          error: null,
+        },
+      })),
+
+    updateExchangeRates: (rates) =>
+      set((state) => ({
+        currency: {
+          ...state.currency,
+          exchangeRate: rates.usd,
+          exchangeRateEUR: rates.eur,
           lastUpdated: new Date().toISOString(),
           error: null,
         },

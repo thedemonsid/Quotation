@@ -26,6 +26,8 @@ export interface TaxDetails {
   taxAmount: number;
 }
 
+export type BillRateCurrency = "INR" | "USD" | "EUR";
+
 export interface BillData {
   billNumber: string;
   billDate: string;
@@ -33,6 +35,7 @@ export interface BillData {
   dueDate?: string;
   purchaseOrderNumber?: string;
   purchaseOrderDate?: string;
+  rateCurrency?: BillRateCurrency;
 
   // Customer details
   customerName: string;

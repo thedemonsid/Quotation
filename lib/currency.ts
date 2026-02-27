@@ -12,6 +12,7 @@ interface ExchangeRateApiPairResponse {
 interface ExchangeRateApiLatestResponse {
   conversion_rates: {
     USD: number;
+    EUR?: number;
   };
   result?: string;
 }
@@ -19,6 +20,7 @@ interface ExchangeRateApiLatestResponse {
 interface ExchangeRateApiFreeResponse {
   rates: {
     USD: number;
+    EUR?: number;
   };
 }
 
@@ -79,27 +81,46 @@ interface ExchangeRateResponse {
   source?: string;
 }
 
+export interface ExchangeRatesResponse {
+  usd: number;
+  eur: number;
+  success: boolean;
+  error?: string;
+  source?: string;
+}
+
+interface CachedRates {
+  usd: number;
+  eur: number;
+  timestamp: number;
+}
+
 class CurrencyService {
   private readonly CACHE_KEY = "exchange_rate_cache";
   private readonly CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
+  private readonly FALLBACK_EUR = 0.011; // Approximate INR to EUR (1 INR ≈ 0.011 EUR)
 
   /**
-   * Get cached exchange rate if available and not expired
+   * Get cached exchange rate if available and not expired (legacy single rate = USD)
    */
   private getCachedRate(): number | null {
     try {
       const cached = localStorage.getItem(this.CACHE_KEY);
       if (!cached) return null;
 
-      const { rate, timestamp } = JSON.parse(cached);
+      const parsed = JSON.parse(cached);
       const now = Date.now();
+      const timestamp = parsed.timestamp ?? 0;
 
-      if (now - timestamp < this.CACHE_DURATION) {
-        return rate;
+      if (now - timestamp >= this.CACHE_DURATION) {
+        localStorage.removeItem(this.CACHE_KEY);
+        return null;
       }
 
-      // Clear expired cache
-      localStorage.removeItem(this.CACHE_KEY);
+      // New format: { usd, eur, timestamp }
+      if (typeof parsed.usd === "number") return parsed.usd;
+      // Legacy: { rate, timestamp }
+      if (typeof parsed.rate === "number") return parsed.rate;
       return null;
     } catch {
       return null;
@@ -107,12 +128,61 @@ class CurrencyService {
   }
 
   /**
-   * Cache exchange rate with timestamp
+   * Get cached rates (USD and EUR) if available and not expired
+   */
+  private getCachedRates(): CachedRates | null {
+    try {
+      const cached = localStorage.getItem(this.CACHE_KEY);
+      if (!cached) return null;
+
+      const parsed = JSON.parse(cached);
+      const now = Date.now();
+      const timestamp = parsed.timestamp ?? 0;
+
+      if (now - timestamp >= this.CACHE_DURATION) {
+        localStorage.removeItem(this.CACHE_KEY);
+        return null;
+      }
+
+      if (typeof parsed.usd === "number" && typeof parsed.eur === "number") {
+        return { usd: parsed.usd, eur: parsed.eur, timestamp };
+      }
+      // Legacy single rate: treat as USD, use fallback for EUR
+      if (typeof parsed.rate === "number") {
+        return {
+          usd: parsed.rate,
+          eur: this.FALLBACK_EUR,
+          timestamp,
+        };
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Cache exchange rate with timestamp (legacy: single rate = USD)
    */
   private setCachedRate(rate: number): void {
     try {
       const cacheData = {
         rate,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem(this.CACHE_KEY, JSON.stringify(cacheData));
+    } catch {
+      // Ignore localStorage errors
+    }
+  }
+
+  /**
+   * Cache both USD and EUR rates
+   */
+  private setCachedRates(rates: { usd: number; eur: number }): void {
+    try {
+      const cacheData: CachedRates = {
+        ...rates,
         timestamp: Date.now(),
       };
       localStorage.setItem(this.CACHE_KEY, JSON.stringify(cacheData));
@@ -160,15 +230,44 @@ class CurrencyService {
   }
 
   /**
+   * Fetch USD and EUR rates from "latest/INR" endpoint (one call for both)
+   */
+  private async fetchRatesFromLatest(): Promise<{ usd: number; eur: number } | null> {
+    const url =
+      "https://v6.exchangerate-api.com/v6/517fbeddf382406933ac0aa3/latest/INR";
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!response.ok) return null;
+      const data = await response.json();
+      if (
+        !data.conversion_rates ||
+        typeof data.conversion_rates.USD !== "number"
+      ) {
+        return null;
+      }
+      const usd = data.conversion_rates.USD;
+      const eur =
+        typeof data.conversion_rates.EUR === "number"
+          ? data.conversion_rates.EUR
+          : this.FALLBACK_EUR;
+      return { usd, eur };
+    } catch {
+      return null;
+    }
+  }
+
+  /**
    * Get current INR to USD exchange rate
    * Uses cache first, then tries multiple APIs with fallback
    */
   async getExchangeRate(): Promise<ExchangeRateResponse> {
-    // Try cached rate first
-    const cachedRate = this.getCachedRate();
-    if (cachedRate) {
+    const cached = this.getCachedRates();
+    if (cached) {
       return {
-        rate: cachedRate,
+        rate: cached.usd,
         success: true,
         source: "cache",
       };
@@ -203,15 +302,78 @@ class CurrencyService {
   }
 
   /**
-   * Convert INR amount to USD using provided exchange rate
+   * Get INR to USD and INR to EUR exchange rates (one fetch, cached together)
    */
-  convertINRToUSD(amountINR: number, exchangeRate: number): number {
+  async getExchangeRates(): Promise<ExchangeRatesResponse> {
+    const cached = this.getCachedRates();
+    if (cached) {
+      return {
+        usd: cached.usd,
+        eur: cached.eur,
+        success: true,
+        source: "cache",
+      };
+    }
+
+    const rates = await this.fetchRatesFromLatest();
+    if (rates) {
+      this.setCachedRates(rates);
+      return {
+        usd: rates.usd,
+        eur: rates.eur,
+        success: true,
+        source: "ExchangeRate-API Latest",
+      };
+    }
+
+    // Fallback: try single-rate APIs for USD, use fallback for EUR
+    const usdResponse = await this.getExchangeRate();
+    const eur = this.getCachedRates()?.eur ?? this.FALLBACK_EUR;
+    return {
+      usd: usdResponse.rate,
+      eur,
+      success: usdResponse.success,
+      error: usdResponse.error,
+      source: usdResponse.source,
+    };
+  }
+
+  /**
+   * Convert amount in foreign currency to INR
+   * exchangeRate is INR per 1 unit of foreign currency (e.g. 1 USD = rate INR)
+   * Our stored rate is "INR per 1 USD" as in 1 INR = 0.012 USD, so 1 USD = 1/0.012 INR
+   */
+  convertToINR(
+    amount: number,
+    currency: "USD" | "EUR",
+    rates: { usd: number; eur: number }
+  ): number {
+    if (typeof amount !== "number" || isNaN(amount)) {
+      throw new Error("Invalid amount");
+    }
+    if (currency === "USD") {
+      return this.convertUSDToINR(amount, rates.usd);
+    }
+    if (currency === "EUR") {
+      return this.convertUSDToINR(amount, rates.eur); // same formula: amount/rate gives INR
+    }
+    throw new Error("Unsupported currency");
+  }
+
+  /** Convert INR to foreign currency (amount * rate, where 1 INR = rate) */
+  private convertINRToForeign(amountINR: number, exchangeRate: number): number {
     if (typeof amountINR !== "number" || typeof exchangeRate !== "number") {
       throw new Error("Invalid amount or exchange rate");
     }
+    return Math.round(amountINR * exchangeRate * 10000) / 10000;
+  }
 
-    const converted = amountINR * exchangeRate;
-    return Math.round(converted * 10000) / 10000; // Round to 4 decimal places for precision
+  convertINRToUSD(amountINR: number, exchangeRate: number): number {
+    return this.convertINRToForeign(amountINR, exchangeRate);
+  }
+
+  convertINRToEUR(amountINR: number, exchangeRate: number): number {
+    return this.convertINRToForeign(amountINR, exchangeRate);
   }
 
   /**
@@ -229,13 +391,19 @@ class CurrencyService {
   /**
    * Format currency amount with proper symbols and decimal places
    */
-  formatCurrency(amount: number, currency: "INR" | "USD" = "USD"): string {
-    const symbol = currency === "INR" ? "₹" : "$";
-    const decimals = currency === "USD" ? 4 : 2; // More precision for USD
-
+  formatCurrency(
+    amount: number,
+    currency: "INR" | "USD" | "EUR" = "USD"
+  ): string {
+    const symbols: Record<string, string> = {
+      INR: "₹",
+      USD: "$",
+      EUR: "€",
+    };
+    const symbol = symbols[currency] ?? "$";
     const formatted = new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     }).format(amount);
 
     return `${symbol}${formatted}`;

@@ -57,7 +57,12 @@ const BillPage: React.FC = () => {
     getBillData,
   } = useBillStore();
 
-  const { convertToUSD, formatCurrency } = useCurrency();
+  const { formatCurrency } = useCurrency();
+  const rateCurrency = billDetails.rateCurrency ?? "INR";
+
+  /** Format amount (already in selected currency) */
+  const formatAmount = (amount: number) =>
+    formatCurrency(amount, rateCurrency);
 
   const [showPreview, setShowPreview] = useState(false);
   const [showBoxEntry, setShowBoxEntry] = useState(false);
@@ -108,7 +113,7 @@ const BillPage: React.FC = () => {
       return;
 
     const totalWeight = newBoxEntry.numberOfBoxes * newBoxEntry.weight;
-    const amount = newBoxEntry.numberOfBoxes * newBoxEntry.rate; // Per box pricing
+    const amount = newBoxEntry.numberOfBoxes * newBoxEntry.rate;
 
     const entry: BoxWeightEntry = {
       numberOfBoxes: newBoxEntry.numberOfBoxes,
@@ -196,13 +201,6 @@ const BillPage: React.FC = () => {
     setShowBoxEntry(false);
   };
 
-  const formatINR = (amount: number) => {
-    return new Intl.NumberFormat("en-IN", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
-  };
-
   const canAddItem =
     newItem.description &&
     (newItem.boxWeightEntries.length > 0 ||
@@ -282,7 +280,7 @@ const BillPage: React.FC = () => {
                   <div className="hidden sm:flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-xl">
                     <span className="text-sm text-slate-500">Total:</span>
                     <span className="font-bold text-lg text-emerald-600">
-                      ₹{formatINR(total)}
+                      {formatAmount(total)}
                     </span>
                   </div>
                   <Button
@@ -509,6 +507,28 @@ const BillPage: React.FC = () => {
                         className="h-11 rounded-xl border-slate-200 font-mono"
                       />
                     </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                        Rate currency
+                      </label>
+                      <select
+                        value={rateCurrency}
+                        onChange={(e) =>
+                          updateBillDetails({
+                            rateCurrency: e.target
+                              .value as "INR" | "USD" | "EUR",
+                          })
+                        }
+                        className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm focus:border-purple-300 focus:ring-2 focus:ring-purple-200 focus:outline-none"
+                      >
+                        <option value="INR">₹ INR (Rupees)</option>
+                        <option value="USD">$ USD (Dollars)</option>
+                        <option value="EUR">€ EUR (Euros)</option>
+                      </select>
+                      <p className="text-xs text-slate-400">
+                        Per-box and per-kg rates are entered in this currency
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -592,10 +612,11 @@ const BillPage: React.FC = () => {
                                     × {e.weight} kg
                                   </span>
                                   <span className="text-right text-slate-600">
-                                    ₹{formatINR(e.rate || 0)}/box
+                                    {formatCurrency(e.rate || 0, rateCurrency)}
+                                    /box
                                   </span>
                                   <span className="text-right font-medium text-slate-700">
-                                    ₹{formatINR(e.amount || 0)}
+                                    {formatAmount(e.amount || 0)}
                                   </span>
                                 </div>
                               ))}
@@ -606,12 +627,12 @@ const BillPage: React.FC = () => {
                         {item.quantity.toFixed(2)}
                       </div>
                       <div className="col-span-2 text-right text-slate-700 self-center">
-                        <span className="text-xs text-slate-400">avg </span>₹
-                        {formatINR(item.rate)}
+                        <span className="text-xs text-slate-400">avg </span>
+                        {formatCurrency(item.rate, rateCurrency)}
                       </div>
                       <div className="col-span-2 text-right self-center flex items-center justify-end gap-2">
                         <span className="font-semibold text-slate-900">
-                          ₹{formatINR(item.amount)}
+                          {formatAmount(item.amount)}
                         </span>
                         <Button
                           variant="ghost"
@@ -723,7 +744,13 @@ const BillPage: React.FC = () => {
                                       rate: parseFloat(e.target.value) || 0,
                                     })
                                   }
-                                  placeholder="₹/box"
+                                  placeholder={
+                                    rateCurrency === "INR"
+                                      ? "₹/box"
+                                      : rateCurrency === "USD"
+                                        ? "$/box"
+                                        : "€/box"
+                                  }
                                   className="h-10 rounded-lg text-sm"
                                 />
                               </div>
@@ -763,10 +790,11 @@ const BillPage: React.FC = () => {
                                       × {e.weight} kg
                                     </span>
                                     <span className="text-right text-slate-600">
-                                      ₹{formatINR(e.rate || 0)}/box
+                                      {formatCurrency(e.rate || 0, rateCurrency)}
+                                      /box
                                     </span>
                                     <span className="text-right font-medium text-slate-800">
-                                      ₹{formatINR(e.amount || 0)}
+                                      {formatAmount(e.amount || 0)}
                                     </span>
                                     <button
                                       onClick={() => handleRemoveBoxEntry(i)}
@@ -793,7 +821,7 @@ const BillPage: React.FC = () => {
                                         Amount:{" "}
                                       </span>
                                       <span className="font-bold text-lg text-emerald-700">
-                                        ₹{formatINR(calculateAmount())}
+                                        {formatAmount(calculateAmount())}
                                       </span>
                                     </div>
                                   </div>
@@ -836,13 +864,19 @@ const BillPage: React.FC = () => {
                                 rate: parseFloat(e.target.value) || 0,
                               })
                             }
-                            placeholder="₹/kg"
+                            placeholder={
+                              rateCurrency === "INR"
+                                ? "₹/kg"
+                                : rateCurrency === "USD"
+                                  ? "$/kg"
+                                  : "€/kg"
+                            }
                             className="h-11 rounded-xl border-emerald-200 bg-white focus:border-emerald-400 focus:ring-emerald-200 text-right"
                           />
                         ) : (
                           <div className="h-11 rounded-xl bg-white border border-slate-200 px-3 flex items-center justify-end text-sm text-slate-600">
                             {newItem.rate > 0
-                              ? `₹${formatINR(newItem.rate)}`
+                              ? formatCurrency(newItem.rate, rateCurrency)
                               : "—"}
                           </div>
                         )}
@@ -854,9 +888,12 @@ const BillPage: React.FC = () => {
                         <div className="flex items-center gap-2">
                           <div className="flex-1 h-11 rounded-xl bg-white border border-slate-200 px-3 flex items-center justify-end text-sm font-medium text-slate-700">
                             {newItem.boxWeightEntries.length > 0
-                              ? `₹${formatINR(calculateAmount())}`
+                              ? formatAmount(calculateAmount())
                               : newItem.quantity > 0 && newItem.rate > 0
-                                ? `₹${formatINR(newItem.quantity * newItem.rate)}`
+                                ? formatCurrency(
+                                    newItem.quantity * newItem.rate,
+                                    rateCurrency,
+                                  )
                                 : "—"}
                           </div>
                           <Button
@@ -889,7 +926,7 @@ const BillPage: React.FC = () => {
                       </div>
                       <div className="text-right">
                         <span className="text-3xl font-bold text-emerald-600">
-                          ₹{formatINR(total)}
+                          {formatAmount(total)}
                         </span>
                       </div>
                     </div>
@@ -902,7 +939,7 @@ const BillPage: React.FC = () => {
                 <div>
                   <p className="text-xs text-slate-500">Total</p>
                   <p className="text-xl font-bold text-emerald-600">
-                    ₹{formatINR(total)}
+                    {formatAmount(total)}
                   </p>
                 </div>
                 <Button

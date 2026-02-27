@@ -1,5 +1,10 @@
 import { create } from "zustand";
-import type { BillData, BillItem, TaxDetails } from "@/types/bill";
+import type {
+  BillData,
+  BillItem,
+  BillRateCurrency,
+  TaxDetails,
+} from "@/types/bill";
 
 export interface BillCompanyDetails {
   name: string;
@@ -27,6 +32,7 @@ export interface BillDetails {
   dueDate?: string;
   purchaseOrderNumber?: string;
   purchaseOrderDate?: string;
+  rateCurrency: BillRateCurrency;
 }
 
 export interface PaymentDetails {
@@ -137,6 +143,7 @@ const defaultBillDetails: BillDetails = {
     .split("T")[0], // 15 days from now
   purchaseOrderNumber: "",
   purchaseOrderDate: "",
+  rateCurrency: "INR",
 };
 
 const defaultPaymentDetails: PaymentDetails = {
@@ -318,6 +325,7 @@ export const useBillStore = create<BillState & BillActions>((set, get) => ({
         ...defaultBillDetails,
         billNumber: `BILL-${Date.now()}`,
         billDate: new Date().toISOString().split("T")[0],
+        rateCurrency: "INR",
       },
       items: [],
       subtotal: 0,
@@ -341,6 +349,7 @@ export const useBillStore = create<BillState & BillActions>((set, get) => ({
       dueDate: state.billDetails.dueDate,
       purchaseOrderNumber: state.billDetails.purchaseOrderNumber,
       purchaseOrderDate: state.billDetails.purchaseOrderDate,
+      rateCurrency: state.billDetails.rateCurrency,
       customerName: state.customerDetails.name,
       customerAddress: state.customerDetails.address,
       customerPhone: state.customerDetails.phone,

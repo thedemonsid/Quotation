@@ -10,38 +10,47 @@ export function useCurrency() {
   const {
     currency,
     updateExchangeRate,
+    updateExchangeRates,
     setExchangeRateLoading,
     setExchangeRateError,
     convertINRToUSD,
   } = useQuotationStore();
 
   /**
-   * Fetch exchange rate from API
+   * Fetch exchange rates (USD and EUR) from API
    */
   const fetchExchangeRate = useCallback(async () => {
     setExchangeRateLoading(true);
     setExchangeRateError(null);
 
     try {
-      const response = await currencyService.getExchangeRate();
+      const response = await currencyService.getExchangeRates();
 
       if (response.success) {
-        updateExchangeRate(response.rate);
+        updateExchangeRates({ usd: response.usd, eur: response.eur });
       } else {
-        // Still update with fallback rate but show error
-        updateExchangeRate(response.rate);
+        updateExchangeRates({
+          usd: response.usd,
+          eur: response.eur,
+        });
         setExchangeRateError(response.error || "Failed to fetch exchange rate");
       }
     } catch (error) {
-      const fallbackRate = 0.012;
-      updateExchangeRate(fallbackRate);
+      const fallbackUsd = 0.012;
+      const fallbackEur = 0.011;
+      updateExchangeRates({ usd: fallbackUsd, eur: fallbackEur });
       setExchangeRateError(
         error instanceof Error ? error.message : "Unknown error occurred"
       );
     } finally {
       setExchangeRateLoading(false);
     }
-  }, [updateExchangeRate, setExchangeRateLoading, setExchangeRateError]);
+  }, [
+    updateExchangeRate,
+    updateExchangeRates,
+    setExchangeRateLoading,
+    setExchangeRateError,
+  ]);
 
   /**
    * Initialize exchange rate on mount
@@ -61,20 +70,35 @@ export function useCurrency() {
   );
 
   /**
-   * Convert USD to INR with current exchange rate
+   * Convert foreign currency to INR. With one arg: treats amount as USD.
+   * With two args: uses the given currency (USD or EUR).
    */
   const convertToINR = useCallback(
-    (amountUSD: number) => {
-      return currencyService.convertUSDToINR(amountUSD, currency.exchangeRate);
+    (amount: number, currencyType: "USD" | "EUR" = "USD") => {
+      const rate =
+        currencyType === "EUR" ? currency.exchangeRateEUR : currency.exchangeRate;
+      return currencyService.convertUSDToINR(amount, rate);
     },
-    [currency.exchangeRate]
+    [currency.exchangeRate, currency.exchangeRateEUR]
   );
 
   /**
-   * Format currency with proper symbols
+   * Convert INR to selected currency for display (when bill is in USD/EUR)
+   */
+  const convertFromINR = useCallback(
+    (amountINR: number, currencyType: "USD" | "EUR") => {
+      const rate =
+        currencyType === "EUR" ? currency.exchangeRateEUR : currency.exchangeRate;
+      return currencyService.convertINRToUSD(amountINR, rate); // same formula: amount * rate
+    },
+    [currency.exchangeRate, currency.exchangeRateEUR]
+  );
+
+  /**
+   * Format currency with proper symbols (INR, USD, EUR)
    */
   const formatCurrency = useCallback(
-    (amount: number, currencyType: "INR" | "USD" = "USD") => {
+    (amount: number, currencyType: "INR" | "USD" | "EUR" = "USD") => {
       return currencyService.formatCurrency(amount, currencyType);
     },
     []
@@ -117,6 +141,7 @@ export function useCurrency() {
     // Conversion functions
     convertToUSD,
     convertToINR,
+    convertFromINR,
     formatCurrency,
 
     // Utility functions

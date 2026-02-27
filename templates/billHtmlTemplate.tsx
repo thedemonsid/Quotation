@@ -3,8 +3,9 @@ import React, { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Printer, IndianRupee, DollarSign } from "lucide-react";
+import { Printer } from "lucide-react";
 import { useCurrency } from "@/hooks/useCurrency";
+import { numberToWords } from "@/lib/utils";
 import type { BillData } from "@/types/bill";
 
 interface BillTemplateProps {
@@ -26,116 +27,21 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
   companyDetails,
 }) => {
   const contentRef = useRef<HTMLDivElement>(null);
-  const { convertToUSD, formatCurrency, getExchangeRateInfo } = useCurrency();
+  const { formatCurrency } = useCurrency();
+  const rateCurrency = data.rateCurrency ?? "INR";
 
   const reactToPrintFn = useReactToPrint({
     contentRef,
     documentTitle: `Invoice-${data.billNumber}`,
   });
 
-  // Format currency
-  const formatINR = (amount: number) => {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
-  };
+  /** Amounts are stored in the selected currency; just format */
+  const formatAmount = (amount: number) => formatCurrency(amount, rateCurrency);
 
-  // Format USD
-  const formatUSD = (amount: number) => {
-    return formatCurrency(convertToUSD(amount), "USD");
-  };
-
-  // Get exchange rate info for display
-  const exchangeRateInfo = getExchangeRateInfo();
-
-  // Convert number to words (for Indian numbering)
-  const numberToWords = (num: number): string => {
-    const ones = [
-      "",
-      "One",
-      "Two",
-      "Three",
-      "Four",
-      "Five",
-      "Six",
-      "Seven",
-      "Eight",
-      "Nine",
-    ];
-    const teens = [
-      "Ten",
-      "Eleven",
-      "Twelve",
-      "Thirteen",
-      "Fourteen",
-      "Fifteen",
-      "Sixteen",
-      "Seventeen",
-      "Eighteen",
-      "Nineteen",
-    ];
-    const tens = [
-      "",
-      "",
-      "Twenty",
-      "Thirty",
-      "Forty",
-      "Fifty",
-      "Sixty",
-      "Seventy",
-      "Eighty",
-      "Ninety",
-    ];
-
-    if (num === 0) return "Zero";
-
-    const numStr = Math.floor(num).toString();
-    let words = "";
-
-    // Handle crores
-    if (numStr.length > 7) {
-      const crores = parseInt(numStr.slice(0, -7));
-      words += numberToWords(crores) + " Crore ";
-    }
-
-    // Handle lakhs
-    if (numStr.length > 5) {
-      const lakhs = parseInt(numStr.slice(-7, -5) || "0");
-      if (lakhs > 0) words += numberToWords(lakhs) + " Lakh ";
-    }
-
-    // Handle thousands
-    if (numStr.length > 3) {
-      const thousands = parseInt(numStr.slice(-5, -3) || "0");
-      if (thousands > 0) words += numberToWords(thousands) + " Thousand ";
-    }
-
-    // Handle hundreds
-    const lastThree = parseInt(numStr.slice(-3));
-    const hundreds = Math.floor(lastThree / 100);
-    if (hundreds > 0) words += ones[hundreds] + " Hundred ";
-
-    const lastTwo = lastThree % 100;
-    if (lastTwo >= 10 && lastTwo < 20) {
-      words += teens[lastTwo - 10] + " ";
-    } else {
-      const tensDigit = Math.floor(lastTwo / 10);
-      const onesDigit = lastTwo % 10;
-      if (tensDigit > 0) words += tens[tensDigit] + " ";
-      if (onesDigit > 0) words += ones[onesDigit] + " ";
-    }
-
-    // Add paise if decimal exists
-    const decimal = Math.round((num % 1) * 100);
-    if (decimal > 0) {
-      words += "and " + numberToWords(decimal) + " Paise";
-    }
-
-    return words.trim();
-  };
+  const CURRENCY_LABELS: Record<string, string> = { INR: "Rupees", USD: "Dollars", EUR: "Euros" };
+  const currencyLabel = CURRENCY_LABELS[rateCurrency] ?? "Rupees";
+  const totalLabel = rateCurrency === "INR" ? "Total Rs." : `Total (${rateCurrency})`;
+  const amountColumnLabel = rateCurrency === "INR" ? "AMOUNT\nIN RS." : `AMOUNT\n(${rateCurrency})`;
 
   // Ensure optional numeric fields have safe defaults for rendering
   const discountValue = data.discount ?? 0;
@@ -310,11 +216,14 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
                   RATE
                   <br />
                   PER BOX
+                  {rateCurrency !== "INR" && (
+                    <span className="block text-xs font-normal text-slate-600">
+                      ({rateCurrency})
+                    </span>
+                  )}
                 </th>
-                <th className="border border-slate-800 p-2 text-center font-semibold w-24">
-                  AMOUNT
-                  <br />
-                  IN RS.
+                <th className="border border-slate-800 p-2 text-center font-semibold w-24 whitespace-pre-line">
+                  {amountColumnLabel}
                 </th>
               </tr>
             </thead>
@@ -359,10 +268,10 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
                                       {entry.weight} kg
                                     </td>
                                     <td className="border border-slate-400 p-1 text-right">
-                                      ₹{entry.rate?.toFixed(2) || '0.00'}
+                                      {formatCurrency(entry.rate ?? 0, rateCurrency)}
                                     </td>
                                     <td className="border border-slate-400 p-1 text-right">
-                                      ₹{entry.amount?.toFixed(2) || '0.00'}
+                                      {formatAmount(entry.amount ?? 0)}
                                     </td>
                                   </tr>
                                 ),
@@ -378,7 +287,7 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
                                   Total
                                 </td>
                                 <td className="border border-slate-400 p-1 text-right font-semibold">
-                                  ₹{item.boxWeightEntries.reduce((sum, e) => sum + (e.amount || 0), 0).toFixed(2)}
+                                  {formatAmount(item.boxWeightEntries.reduce((sum, e) => sum + (e.amount || 0), 0))}
                                 </td>
                               </tr>
                             </tbody>
@@ -390,10 +299,10 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
                     {item.quantity.toFixed(2)}
                   </td>
                   <td className="border border-slate-800 p-2 text-right align-top">
-                    {formatINR(item.rate)}
+                    {formatCurrency(item.rate, rateCurrency)}
                   </td>
                   <td className="border border-slate-800 p-2 text-right align-top font-semibold">
-                    {formatINR(item.amount)}
+                    {formatAmount(item.amount)}
                   </td>
                 </tr>
               ))}
@@ -402,7 +311,7 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
               <tr className="bg-slate-100 font-bold">
                 <td className="border border-slate-800 p-2" colSpan={2}>
                   <div>
-                    <span>In words - Rupees: </span>
+                    <span>In words - {currencyLabel}: </span>
                     <span className="italic font-normal">
                       {numberToWords(data.total)} Only
                     </span>
@@ -412,29 +321,22 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
                   {calculateTotalWeight().toFixed(2)}
                 </td>
                 <td className="border border-slate-800 p-2 text-center">
-                  Total Rs.
+                  {totalLabel}
                 </td>
                 <td className="border border-slate-800 p-2 text-right">
-                  {formatINR(data.total)}
+                  {formatAmount(data.total)}
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        {/* Financial Summary */}
+        {/* Financial Summary - single currency only */}
         <div className="mb-4 flex justify-end">
           <div className="w-full md:w-2/3 border border-slate-300">
             <div className="flex justify-between p-2 border-b border-slate-300 bg-slate-50">
               <span className="font-semibold">Subtotal:</span>
-              <div className="text-right">
-                <span className="font-semibold">
-                  {formatINR(data.subtotal)}
-                </span>
-                <span className="text-sm text-slate-500 ml-2">
-                  ({formatUSD(data.subtotal)})
-                </span>
-              </div>
+              <span className="font-semibold">{formatAmount(data.subtotal)}</span>
             </div>
 
             {discountValue > 0 && (
@@ -442,12 +344,7 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
                 <span>
                   Discount {discountPercent > 0 ? `(${discountPercent}%)` : ""}:
                 </span>
-                <div className="text-right">
-                  <span>- {formatINR(discountValue)}</span>
-                  <span className="text-sm ml-2">
-                    (- {formatUSD(discountValue)})
-                  </span>
-                </div>
+                <span>- {formatAmount(discountValue)}</span>
               </div>
             )}
 
@@ -456,64 +353,31 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
                 {data.tax.cgst && (
                   <div className="flex justify-between p-2 border-b border-slate-300">
                     <span>CGST ({data.tax.cgst}%):</span>
-                    <div className="text-right">
-                      <span>
-                        {formatINR(
-                          ((data.subtotal - discountValue) * data.tax.cgst) /
-                            100,
-                        )}
-                      </span>
-                      <span className="text-sm text-slate-500 ml-2">
-                        (
-                        {formatUSD(
-                          ((data.subtotal - discountValue) * data.tax.cgst) /
-                            100,
-                        )}
-                        )
-                      </span>
-                    </div>
+                    <span>
+                      {formatAmount(
+                        ((data.subtotal - discountValue) * data.tax.cgst) / 100,
+                      )}
+                    </span>
                   </div>
                 )}
                 {data.tax.sgst && (
                   <div className="flex justify-between p-2 border-b border-slate-300">
                     <span>SGST ({data.tax.sgst}%):</span>
-                    <div className="text-right">
-                      <span>
-                        {formatINR(
-                          ((data.subtotal - discountValue) * data.tax.sgst) /
-                            100,
-                        )}
-                      </span>
-                      <span className="text-sm text-slate-500 ml-2">
-                        (
-                        {formatUSD(
-                          ((data.subtotal - discountValue) * data.tax.sgst) /
-                            100,
-                        )}
-                        )
-                      </span>
-                    </div>
+                    <span>
+                      {formatAmount(
+                        ((data.subtotal - discountValue) * data.tax.sgst) / 100,
+                      )}
+                    </span>
                   </div>
                 )}
                 {data.tax.igst && (
                   <div className="flex justify-between p-2 border-b border-slate-300">
                     <span>IGST ({data.tax.igst}%):</span>
-                    <div className="text-right">
-                      <span>
-                        {formatINR(
-                          ((data.subtotal - discountValue) * data.tax.igst) /
-                            100,
-                        )}
-                      </span>
-                      <span className="text-sm text-slate-500 ml-2">
-                        (
-                        {formatUSD(
-                          ((data.subtotal - discountValue) * data.tax.igst) /
-                            100,
-                        )}
-                        )
-                      </span>
-                    </div>
+                    <span>
+                      {formatAmount(
+                        ((data.subtotal - discountValue) * data.tax.igst) / 100,
+                      )}
+                    </span>
                   </div>
                 )}
               </>
@@ -522,50 +386,22 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
             {shippingValue > 0 && (
               <div className="flex justify-between p-2 border-b border-slate-300">
                 <span>Shipping Charges:</span>
-                <div className="text-right">
-                  <span>{formatINR(shippingValue)}</span>
-                  <span className="text-sm text-slate-500 ml-2">
-                    ({formatUSD(shippingValue)})
-                  </span>
-                </div>
+                <span>{formatAmount(shippingValue)}</span>
               </div>
             )}
 
             {otherValue > 0 && (
               <div className="flex justify-between p-2 border-b border-slate-300">
                 <span>Other Charges:</span>
-                <div className="text-right">
-                  <span>{formatINR(otherValue)}</span>
-                  <span className="text-sm text-slate-500 ml-2">
-                    ({formatUSD(otherValue)})
-                  </span>
-                </div>
+                <span>{formatAmount(otherValue)}</span>
               </div>
             )}
 
-            {/* Total in INR */}
-            <div className="flex justify-between p-3 bg-green-50 font-bold text-lg border-b border-slate-300">
-              <span className="flex items-center">
-                <IndianRupee className="w-5 h-5 mr-1" />
-                Total (INR):
-              </span>
-              <span className="text-green-700">{formatINR(data.total)}</span>
-            </div>
-
-            {/* Total in USD */}
-            <div className="flex justify-between p-3 bg-blue-50 font-bold text-lg">
-              <span className="flex items-center">
-                <DollarSign className="w-5 h-5 mr-1" />
-                Total (USD):
-              </span>
-              <span className="text-blue-700">{formatUSD(data.total)}</span>
+            <div className="flex justify-between p-3 bg-green-50 font-bold text-lg">
+              <span>Total ({rateCurrency}):</span>
+              <span className="text-green-700">{formatAmount(data.total)}</span>
             </div>
           </div>
-        </div>
-
-        {/* Exchange Rate Note */}
-        <div className="mb-4 text-xs text-slate-500 text-right">
-          Exchange Rate: {exchangeRateInfo.formattedRate}
         </div>
 
         {/* Payment Details */}
