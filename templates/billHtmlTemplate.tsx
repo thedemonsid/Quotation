@@ -277,6 +277,19 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
           </div>
         </div>
 
+        {/* LUT Statement for Export */}
+        <div className="mb-4">
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded">
+            <p className="text-xs sm:text-sm font-semibold text-yellow-800">
+              Supply Meant For Export Under Letter of Undertaking Without
+              Payment Of Integrated Goods and Service Tax(IGST)
+            </p>
+            <p className="text-xs sm:text-sm font-semibold text-yellow-800 mt-1">
+              LUT NO- AD270925026009Y
+            </p>
+          </div>
+        </div>
+
         {/* Items Table - New Format */}
         <div className="mb-4">
           <table className="w-full border-collapse border-2 border-slate-800 text-sm">
