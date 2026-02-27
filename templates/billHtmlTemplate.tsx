@@ -296,7 +296,7 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
                 <th className="border border-slate-800 p-2 text-center font-semibold w-20">
                   RATE
                   <br />
-                  PER KG
+                  PER BOX
                 </th>
                 <th className="border border-slate-800 p-2 text-center font-semibold w-24">
                   AMOUNT
@@ -327,8 +327,11 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
                                 <th className="border border-slate-400 p-1 text-left">
                                   Wt. per Carton
                                 </th>
-                                <th className="border border-slate-400 p-1 text-left">
-                                  Total Wt
+                                <th className="border border-slate-400 p-1 text-right">
+                                  Rate/Box
+                                </th>
+                                <th className="border border-slate-400 p-1 text-right">
+                                  Amount
                                 </th>
                               </tr>
                             </thead>
@@ -342,23 +345,27 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
                                     <td className="border border-slate-400 p-1">
                                       {entry.weight} kg
                                     </td>
-                                    <td className="border border-slate-400 p-1">
-                                      {entry.totalWeight.toFixed(2)}
+                                    <td className="border border-slate-400 p-1 text-right">
+                                      ₹{entry.rate?.toFixed(2) || '0.00'}
+                                    </td>
+                                    <td className="border border-slate-400 p-1 text-right">
+                                      ₹{entry.amount?.toFixed(2) || '0.00'}
                                     </td>
                                   </tr>
                                 ),
                               )}
                               <tr className="font-semibold bg-slate-50">
-                                <td
-                                  className="border border-slate-400 p-1"
-                                  colSpan={2}
-                                >
-                                  Total wt
+                                <td className="border border-slate-400 p-1">
+                                  {item.boxWeightEntries.reduce((sum, e) => sum + e.numberOfBoxes, 0)} boxes
                                 </td>
                                 <td className="border border-slate-400 p-1">
-                                  {item.boxWeightEntries
-                                    .reduce((sum, e) => sum + e.totalWeight, 0)
-                                    .toFixed(2)}
+                                  {item.boxWeightEntries.reduce((sum, e) => sum + e.totalWeight, 0).toFixed(2)} kg
+                                </td>
+                                <td className="border border-slate-400 p-1 text-right font-semibold">
+                                  Total
+                                </td>
+                                <td className="border border-slate-400 p-1 text-right font-semibold">
+                                  ₹{item.boxWeightEntries.reduce((sum, e) => sum + (e.amount || 0), 0).toFixed(2)}
                                 </td>
                               </tr>
                             </tbody>

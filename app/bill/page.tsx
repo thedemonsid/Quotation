@@ -61,7 +61,6 @@ const BillPage: React.FC = () => {
 
   const [showPreview, setShowPreview] = useState(false);
   const [showBoxEntry, setShowBoxEntry] = useState(false);
-  const [rateType, setRateType] = useState<"kg" | "box">("kg");
   const [newItem, setNewItem] = useState({
     description: "",
     hsn: "",
@@ -109,17 +108,13 @@ const BillPage: React.FC = () => {
       return;
 
     const totalWeight = newBoxEntry.numberOfBoxes * newBoxEntry.weight;
-    const amount =
-      rateType === "kg"
-        ? totalWeight * newBoxEntry.rate
-        : newBoxEntry.numberOfBoxes * newBoxEntry.rate;
+    const amount = newBoxEntry.numberOfBoxes * newBoxEntry.rate; // Per box pricing
 
     const entry: BoxWeightEntry = {
       numberOfBoxes: newBoxEntry.numberOfBoxes,
       weight: newBoxEntry.weight,
       totalWeight: totalWeight,
       rate: newBoxEntry.rate,
-      rateType: rateType,
       amount: amount,
     };
 
@@ -198,7 +193,6 @@ const BillPage: React.FC = () => {
       rate: 0,
       boxWeightEntries: [],
     });
-    setRateType("kg");
     setShowBoxEntry(false);
   };
 
@@ -598,8 +592,7 @@ const BillPage: React.FC = () => {
                                     × {e.weight} kg
                                   </span>
                                   <span className="text-right text-slate-600">
-                                    ₹{formatINR(e.rate || 0)}/
-                                    {e.rateType === "box" ? "box" : "kg"}
+                                    ₹{formatINR(e.rate || 0)}/box
                                   </span>
                                   <span className="text-right font-medium text-slate-700">
                                     ₹{formatINR(e.amount || 0)}
@@ -676,37 +669,6 @@ const BillPage: React.FC = () => {
                         {/* Box Weight Entry */}
                         {showBoxEntry && (
                           <div className="bg-white rounded-xl border border-emerald-200 p-4 space-y-3">
-                            {/* Rate Type Toggle */}
-                            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                              <span className="text-xs font-medium text-slate-600">
-                                Calculate rate by:
-                              </span>
-                              <div className="flex bg-slate-100 rounded-lg p-0.5">
-                                <button
-                                  type="button"
-                                  onClick={() => setRateType("kg")}
-                                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                                    rateType === "kg"
-                                      ? "bg-white text-emerald-700 shadow-sm"
-                                      : "text-slate-500 hover:text-slate-700"
-                                  }`}
-                                >
-                                  Per KG
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => setRateType("box")}
-                                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                                    rateType === "box"
-                                      ? "bg-white text-emerald-700 shadow-sm"
-                                      : "text-slate-500 hover:text-slate-700"
-                                  }`}
-                                >
-                                  Per Box
-                                </button>
-                              </div>
-                            </div>
-
                             <div className="flex gap-2 items-end">
                               <div className="flex-1 space-y-1.5">
                                 <label className="text-xs font-medium text-slate-500">
@@ -748,7 +710,7 @@ const BillPage: React.FC = () => {
                               </div>
                               <div className="flex-1 space-y-1.5">
                                 <label className="text-xs font-medium text-slate-500">
-                                  {rateType === "kg" ? "Rate/KG" : "Rate/Box"}
+                                  Rate/Box
                                 </label>
                                 <Input
                                   type="number"
@@ -761,9 +723,7 @@ const BillPage: React.FC = () => {
                                       rate: parseFloat(e.target.value) || 0,
                                     })
                                   }
-                                  placeholder={
-                                    rateType === "kg" ? "₹/kg" : "₹/box"
-                                  }
+                                  placeholder="₹/box"
                                   className="h-10 rounded-lg text-sm"
                                 />
                               </div>
@@ -803,8 +763,7 @@ const BillPage: React.FC = () => {
                                       × {e.weight} kg
                                     </span>
                                     <span className="text-right text-slate-600">
-                                      ₹{formatINR(e.rate || 0)}/
-                                      {e.rateType === "box" ? "box" : "kg"}
+                                      ₹{formatINR(e.rate || 0)}/box
                                     </span>
                                     <span className="text-right font-medium text-slate-800">
                                       ₹{formatINR(e.amount || 0)}
