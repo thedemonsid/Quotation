@@ -3,6 +3,7 @@ import type {
   BillData,
   BillItem,
   BillRateCurrency,
+  ExtraCharge,
   TaxDetails,
 } from "@/types/bill";
 
@@ -62,6 +63,7 @@ interface BillState {
   discountPercentage: number;
   shippingCharges: number;
   otherCharges: number;
+  extraCharges: ExtraCharge[];
   total: number;
 
   // Payment details (editable)
@@ -96,6 +98,10 @@ interface BillActions {
   setDiscountPercentage: (percentage: number) => void;
   setShippingCharges: (amount: number) => void;
   setOtherCharges: (amount: number) => void;
+  addExtraCharge: () => void;
+  updateExtraCharge: (id: string, charge: Partial<ExtraCharge>) => void;
+  removeExtraCharge: (id: string) => void;
+  clearExtraCharges: () => void;
   calculateTotal: () => void;
 
   // Payment actions
@@ -172,6 +178,7 @@ export const useBillStore = create<BillState & BillActions>((set, get) => ({
   discountPercentage: 0,
   shippingCharges: 0,
   otherCharges: 0,
+  extraCharges: [],
   total: 0,
   paymentDetails: defaultPaymentDetails,
   notes: [],
@@ -268,10 +275,51 @@ export const useBillStore = create<BillState & BillActions>((set, get) => ({
     get().calculateTotal();
   },
 
+  addExtraCharge: () => {
+    const id = `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    set((state) => ({
+      extraCharges: [
+        ...state.extraCharges,
+        { id, label: "", amount: undefined },
+      ],
+    }));
+    get().calculateTotal();
+  },
+
+  updateExtraCharge: (id, chargeUpdate) => {
+    set((state) => ({
+      extraCharges: state.extraCharges.map((c) =>
+        c.id === id ? { ...c, ...chargeUpdate } : c,
+      ),
+    }));
+    get().calculateTotal();
+  },
+
+  removeExtraCharge: (id) => {
+    set((state) => ({
+      extraCharges: state.extraCharges.filter((c) => c.id !== id),
+    }));
+    get().calculateTotal();
+  },
+
+  clearExtraCharges: () => {
+    set({ extraCharges: [] });
+    get().calculateTotal();
+  },
+
   calculateTotal: () => {
     const state = get();
     const itemsTotal = state.items.reduce((sum, item) => sum + item.amount, 0);
-    const subtotal = itemsTotal;
+
+    const extraChargesTotal = state.extraCharges.reduce((sum, c) => {
+      const label = (c.label ?? "").trim();
+      const amount =
+        typeof c.amount === "number" && isFinite(c.amount) ? c.amount : 0;
+      const isFilled = label.length > 0 || amount !== 0;
+      return sum + (isFilled ? amount : 0);
+    }, 0);
+
+    const subtotal = itemsTotal + extraChargesTotal;
     const taxAmount = state.tax?.taxAmount || 0;
     const total =
       subtotal -
@@ -334,6 +382,7 @@ export const useBillStore = create<BillState & BillActions>((set, get) => ({
       discountPercentage: 0,
       shippingCharges: 0,
       otherCharges: 0,
+      extraCharges: [],
       total: 0,
       paymentDetails: defaultPaymentDetails,
       notes: [],
@@ -362,6 +411,7 @@ export const useBillStore = create<BillState & BillActions>((set, get) => ({
       discountPercentage: state.discountPercentage,
       shippingCharges: state.shippingCharges,
       otherCharges: state.otherCharges,
+      extraCharges: state.extraCharges,
       total: state.total,
       paymentTerms: `Payment due by ${state.billDetails.dueDate}`,
       bankDetails: state.paymentDetails,

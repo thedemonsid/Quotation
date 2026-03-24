@@ -35,6 +35,8 @@ import {
   ChevronDown,
   ChevronUp,
   Receipt,
+  StickyNote,
+  Scale,
 } from "lucide-react";
 
 const BillPage: React.FC = () => {
@@ -46,16 +48,30 @@ const BillPage: React.FC = () => {
     items,
     subtotal,
     total,
+    extraCharges,
+    notes,
+    termsAndConditions,
 
     updateCompanyDetails,
     updateCustomerDetails,
     updateBillDetails,
     addItem,
     removeItem,
+    addExtraCharge,
+    updateExtraCharge,
+    removeExtraCharge,
+    addNote,
+    removeNote,
+    addTerm,
+    removeTerm,
+    updateTerms,
 
     calculateTotal,
     getBillData,
   } = useBillStore();
+
+  const [newNote, setNewNote] = useState("");
+  const [newTerm, setNewTerm] = useState("");
 
   const { formatCurrency } = useCurrency();
   const rateCurrency = billDetails.rateCurrency ?? "INR";
@@ -909,6 +925,89 @@ const BillPage: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Extra Charges – inline below items */}
+                <div className="px-5 py-4 border-t border-dashed border-slate-200 bg-orange-50/40">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-xs font-semibold text-orange-600 uppercase tracking-wide">
+                      Extra Charges
+                    </p>
+                    <Button
+                      type="button"
+                      onClick={addExtraCharge}
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5 rounded-xl h-8 text-xs border-orange-200 text-orange-600 hover:bg-orange-50"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      Add Charge
+                    </Button>
+                  </div>
+
+                  {extraCharges.length === 0 ? (
+                    <p className="text-sm text-slate-400 text-center py-2">
+                      No extra charges added
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {extraCharges.map((c) => (
+                        <div
+                          key={c.id}
+                          className="grid grid-cols-12 gap-2 items-center"
+                        >
+                          <div className="col-span-6">
+                            <Input
+                              value={c.label ?? ""}
+                              onChange={(e) =>
+                                updateExtraCharge(c.id, {
+                                  label: e.target.value,
+                                })
+                              }
+                              placeholder="e.g. Freight"
+                              className="h-9 rounded-lg border-slate-200 text-sm"
+                            />
+                          </div>
+                          <div className="col-span-4">
+                            <Input
+                              type="number"
+                              inputMode="decimal"
+                              value={
+                                typeof c.amount === "number" ? c.amount : ""
+                              }
+                              onChange={(e) => {
+                                const raw = e.target.value;
+                                const parsed =
+                                  raw.trim().length === 0
+                                    ? undefined
+                                    : Number(raw);
+                                updateExtraCharge(c.id, {
+                                  amount:
+                                    typeof parsed === "number" &&
+                                    isFinite(parsed)
+                                      ? parsed
+                                      : undefined,
+                                });
+                              }}
+                              placeholder="0"
+                              className="h-9 rounded-lg border-slate-200 text-right text-sm"
+                            />
+                          </div>
+                          <div className="col-span-2 flex justify-end">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => removeExtraCharge(c.id)}
+                              className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 {/* Totals */}
                 {items.length > 0 && (
                   <div className="border-t-2 border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100">
@@ -932,6 +1031,151 @@ const BillPage: React.FC = () => {
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* Notes Card */}
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mt-4">
+                <div className="px-5 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 bg-amber-100 rounded-xl flex items-center justify-center">
+                      <StickyNote className="w-4 h-4 text-amber-600" />
+                    </div>
+                    <div>
+                      <h2 className="font-semibold text-slate-900">Notes</h2>
+                      <p className="text-xs text-slate-500">
+                        Additional notes for this invoice
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-5 space-y-3">
+                  {notes.length === 0 && newNote.length === 0 && (
+                    <p className="text-sm text-slate-400 text-center py-2">
+                      No notes added
+                    </p>
+                  )}
+                  {notes.map((note, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <span className="flex-1 text-sm text-slate-700 bg-slate-50 rounded-lg px-3 py-2">
+                        {note}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeNote(index)}
+                        className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg shrink-0"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  ))}
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value={newNote}
+                      onChange={(e) => setNewNote(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && newNote.trim()) {
+                          addNote(newNote.trim());
+                          setNewNote("");
+                        }
+                      }}
+                      placeholder="Type a note and press Enter"
+                      className="h-10 rounded-xl border-slate-200 flex-1"
+                    />
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        if (newNote.trim()) {
+                          addNote(newNote.trim());
+                          setNewNote("");
+                        }
+                      }}
+                      disabled={!newNote.trim()}
+                      className="h-10 w-10 p-0 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-200 disabled:text-slate-400 rounded-xl shadow-lg shadow-amber-200 disabled:shadow-none"
+                    >
+                      <Plus className="w-5 h-5" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Terms & Conditions Card */}
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mt-4">
+                <div className="px-5 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 bg-indigo-100 rounded-xl flex items-center justify-center">
+                      <Scale className="w-4 h-4 text-indigo-600" />
+                    </div>
+                    <div>
+                      <h2 className="font-semibold text-slate-900">
+                        Terms & Conditions
+                      </h2>
+                      <p className="text-xs text-slate-500">
+                        Editable terms for custom deals
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-5 space-y-2">
+                  {termsAndConditions.length === 0 && newTerm.length === 0 && (
+                    <p className="text-sm text-slate-400 text-center py-2">
+                      No terms added
+                    </p>
+                  )}
+                  {termsAndConditions.map((term, index) => (
+                    <div key={index} className="flex items-start gap-2">
+                      <span className="mt-2.5 text-xs font-medium text-slate-400 w-5 shrink-0">
+                        {index + 1}.
+                      </span>
+                      <Input
+                        value={term}
+                        onChange={(e) => {
+                          const updated = [...termsAndConditions];
+                          updated[index] = e.target.value;
+                          updateTerms(updated);
+                        }}
+                        className="h-9 rounded-lg border-slate-200 text-sm flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeTerm(index)}
+                        className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg shrink-0 mt-0.5"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  ))}
+                  <div className="flex items-center gap-2 pt-1">
+                    <Input
+                      value={newTerm}
+                      onChange={(e) => setNewTerm(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && newTerm.trim()) {
+                          addTerm(newTerm.trim());
+                          setNewTerm("");
+                        }
+                      }}
+                      placeholder="Add a new term and press Enter"
+                      className="h-10 rounded-xl border-slate-200 flex-1"
+                    />
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        if (newTerm.trim()) {
+                          addTerm(newTerm.trim());
+                          setNewTerm("");
+                        }
+                      }}
+                      disabled={!newTerm.trim()}
+                      className="h-10 w-10 p-0 bg-indigo-500 hover:bg-indigo-600 disabled:bg-slate-200 disabled:text-slate-400 rounded-xl shadow-lg shadow-indigo-200 disabled:shadow-none"
+                    >
+                      <Plus className="w-5 h-5" />
+                    </Button>
+                  </div>
+                </div>
               </div>
 
               {/* Mobile Total Bar */}

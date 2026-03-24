@@ -15,6 +15,9 @@ export interface BillItem {
   unit: string;
   rate: number; // Rate per KG
   amount: number; // Total amount in RS
+  /** Optional per-line extra charges (added on top of amount) */
+  extraChargeLabel?: string;
+  extraChargeAmount?: number;
   // Box weight details for the nested table
   boxWeightEntries?: BoxWeightEntry[];
 }
@@ -24,6 +27,12 @@ export interface TaxDetails {
   sgst?: number; // State GST percentage
   igst?: number; // Integrated GST percentage
   taxAmount: number;
+}
+
+export interface ExtraCharge {
+  id: string;
+  label?: string;
+  amount?: number;
 }
 
 export type BillRateCurrency = "INR" | "USD" | "EUR";
@@ -54,6 +63,7 @@ export interface BillData {
   discountPercentage?: number;
   shippingCharges?: number;
   otherCharges?: number;
+  extraCharges?: ExtraCharge[];
   total: number;
 
   // Payment details

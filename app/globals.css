@@ -200,4 +200,24 @@
       display: none !important;
     }
   }
+
+  /* Extra Charges column printing: show values, hide inputs/borders */
+  .extra-charge-input {
+    display: none !important;
+  }
+
+  .extra-charge-print {
+    display: inline !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}
+
+/* Screen (non-print): show inputs, hide print-only values */
+.extra-charge-print {
+  display: none;
 }

@@ -307,6 +307,32 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
                 </tr>
               ))}
 
+              {/* Extra Charge rows – inline, below items */}
+              {data.extraCharges
+                ?.filter((c) => {
+                  const label = (c.label ?? "").trim();
+                  const amount =
+                    typeof c.amount === "number" && isFinite(c.amount) ? c.amount : 0;
+                  return label.length > 0 || amount !== 0;
+                })
+                .map((c) => {
+                  const label = (c.label ?? "").trim();
+                  const amount =
+                    typeof c.amount === "number" && isFinite(c.amount) ? c.amount : 0;
+                  return (
+                    <tr key={c.id} className="bg-orange-50/60">
+                      <td className="border border-slate-800 p-2" colSpan={4}>
+                        <span className="font-medium text-slate-700">
+                          {label || "Extra Charge"}:
+                        </span>
+                      </td>
+                      <td className="border border-slate-800 p-2 text-right font-semibold">
+                        {formatAmount(amount)}
+                      </td>
+                    </tr>
+                  );
+                })}
+
               {/* Total Weight and Amount Row */}
               <tr className="bg-slate-100 font-bold">
                 <td className="border border-slate-800 p-2" colSpan={2}>
@@ -397,6 +423,7 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
               </div>
             )}
 
+
             <div className="flex justify-between p-3 bg-green-50 font-bold text-lg">
               <span>Total ({rateCurrency}):</span>
               <span className="text-green-700">{formatAmount(data.total)}</span>
@@ -406,7 +433,7 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
 
         {/* Payment Details */}
         {data.bankDetails && (
-          <div className="mb-4 border border-slate-300 p-3">
+          <div className="mb-4 border border-slate-300 p-3 relative">
             <h3 className="text-sm font-bold text-slate-800 mb-2 bg-slate-100 p-2">
               PAYMENT DETAILS:
             </h3>
@@ -431,7 +458,17 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
                 <p className="font-semibold">IFSC Code:</p>
                 <p className="text-slate-600">{data.bankDetails.ifscCode}</p>
               </div>
+              <div>
+                <p className="font-semibold">SWIFT Code:</p>
+                <p className="text-slate-600">MAHBINBBSOL</p>
+              </div>
             </div>
+            {/* Proprietor Stamp overlay */}
+            <img
+              src="/propraietory.png"
+              alt="Proprietor Stamp"
+              className="absolute right-4 top-1/2 -translate-y-1/2 h-24 opacity-70"
+            />
           </div>
         )}
 
@@ -463,8 +500,13 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
 
         {/* Signature Section */}
         <div className="mt-8 border-t-2 border-slate-800 pt-4">
-          <div className="flex justify-end mb-12">
+          <div className="flex justify-end mb-4">
             <div className="text-center">
+              <img
+                src="/sign.png"
+                alt="Authorized Signature"
+                className="h-16 mx-auto mb-1"
+              />
               <p className="font-semibold">Authorized Signatory for APACS</p>
             </div>
           </div>
@@ -487,7 +529,12 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
               <p className="italic">This is a computer generated invoice</p>
             </div>
             <div className="text-center">
-              <div className="border-t-2 border-slate-800 pt-2 mt-8 min-w-[200px]">
+              <img
+                src="/sign.png"
+                alt="Signature"
+                className="h-14 mx-auto mb-1"
+              />
+              <div className="border-t-2 border-slate-800 pt-2 min-w-[200px]">
                 <p className="font-semibold text-sm">Authorized Signatory</p>
                 <p className="text-xs text-slate-600">{companyDetails.name}</p>
               </div>
