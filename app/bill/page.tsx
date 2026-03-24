@@ -369,14 +369,14 @@ const BillPage: React.FC = () => {
                       </div>
                       <div className="space-y-1.5">
                         <label className="text-xs font-medium text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
-                          <CreditCard className="w-3 h-3" /> GSTIN
+                          <CreditCard className="w-3 h-3" /> GSTIN / VAT ID
                         </label>
                         <Input
                           value={customerDetails.gstin || ""}
                           onChange={(e) =>
                             updateCustomerDetails({ gstin: e.target.value })
                           }
-                          placeholder="GSTIN"
+                          placeholder="GSTIN / VAT ID"
                           className="h-10 rounded-xl border-slate-200 text-sm"
                         />
                       </div>
@@ -460,7 +460,7 @@ const BillPage: React.FC = () => {
                             </div>
                             <div className="space-y-1.5">
                               <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">
-                                GSTIN
+                                GSTIN / VAT ID
                               </label>
                               <Input
                                 value={companyDetails.gstin}
@@ -469,7 +469,7 @@ const BillPage: React.FC = () => {
                                     gstin: e.target.value,
                                   })
                                 }
-                                placeholder="GSTIN"
+                                placeholder="GSTIN / VAT ID"
                                 className="h-10 rounded-xl text-sm"
                               />
                             </div>

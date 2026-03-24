@@ -79,7 +79,7 @@ export const BillCompanyDetailsDialog: React.FC<CompanyDetailsDialogProps> = ({
             />
           </div>
           <div>
-            <Label>GSTIN</Label>
+            <Label>GSTIN / VAT ID</Label>
             <Input
               value={companyDetails.gstin}
               onChange={(e) => updateCompanyDetails({ gstin: e.target.value })}

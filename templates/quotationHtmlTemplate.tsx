@@ -92,7 +92,7 @@ const QuotationTemplate: React.FC<QuotationTemplateProps> = ({ data }) => {
                   {companyDetails.email}
                 </p>
                 <p className="font-semibold text-slate-800 break-all print:break-normal">
-                  GSTIN: {companyDetails.gstin}
+                  GSTIN / VAT ID: {companyDetails.gstin}
                 </p>
               </div>
             </div>

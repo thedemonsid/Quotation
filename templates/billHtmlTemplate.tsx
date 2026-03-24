@@ -112,7 +112,7 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
               </p>
               <p className="text-slate-600">{companyDetails.email}</p>
               <p className="font-semibold text-slate-800">
-                GSTIN: {companyDetails.gstin}
+                GSTIN / VAT ID: {companyDetails.gstin}
               </p>
               {companyDetails.panNumber && (
                 <p className="font-semibold text-slate-800">
@@ -177,7 +177,7 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
             )}
             {data.customerGSTIN && (
               <p className="font-semibold text-slate-800">
-                GSTIN: {data.customerGSTIN}
+                GSTIN / VAT ID: {data.customerGSTIN}
               </p>
             )}
           </div>

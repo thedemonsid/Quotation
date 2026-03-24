@@ -118,7 +118,7 @@ export function CompanyDetailsDialog() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
             <Label htmlFor="gstin" className="sm:text-right">
-              GSTIN
+              GSTIN / VAT ID
             </Label>
             <Input
               id="gstin"
