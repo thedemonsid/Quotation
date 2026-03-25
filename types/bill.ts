@@ -41,6 +41,9 @@ export interface BillData {
   billNumber: string;
   billDate: string;
   containerNumber?: string;
+  portOfLoading?: string;
+  portOfDischarge?: string;
+  finalDestination?: string;
   dueDate?: string;
   purchaseOrderNumber?: string;
   purchaseOrderDate?: string;
@@ -73,6 +76,15 @@ export interface BillData {
     accountNumber: string;
     ifscCode: string;
     accountHolderName: string;
+  };
+
+  // Notify Party
+  notifyParty?: {
+    companyName: string;
+    address: string;
+    phone?: string;
+    email?: string;
+    gstin?: string;
   };
 
   // Additional info

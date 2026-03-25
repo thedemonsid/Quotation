@@ -26,10 +26,21 @@ export interface BillCustomerDetails {
   gstin?: string;
 }
 
+export interface NotifyPartyDetails {
+  companyName: string;
+  address: string;
+  phone?: string;
+  email?: string;
+  gstin?: string;
+}
+
 export interface BillDetails {
   billNumber: string;
   billDate: string;
   containerNumber?: string;
+  portOfLoading?: string;
+  portOfDischarge?: string;
+  finalDestination?: string;
   dueDate?: string;
   purchaseOrderNumber?: string;
   purchaseOrderDate?: string;
@@ -69,6 +80,9 @@ interface BillState {
   // Payment details (editable)
   paymentDetails: PaymentDetails;
 
+  // Notify Party
+  notifyPartyDetails: NotifyPartyDetails;
+
   // Additional info
   notes: string[];
   termsAndConditions: string[];
@@ -103,6 +117,9 @@ interface BillActions {
   removeExtraCharge: (id: string) => void;
   clearExtraCharges: () => void;
   calculateTotal: () => void;
+
+  // Notify Party actions
+  updateNotifyPartyDetails: (details: Partial<NotifyPartyDetails>) => void;
 
   // Payment actions
   updatePaymentDetails: (details: Partial<PaymentDetails>) => void;
@@ -141,15 +158,26 @@ const defaultCustomerDetails: BillCustomerDetails = {
 };
 
 const defaultBillDetails: BillDetails = {
-  billNumber: `BILL-${Date.now()}`,
+  billNumber: "", // Will be auto-generated on client side
   billDate: new Date().toISOString().split("T")[0],
   containerNumber: "",
+  portOfLoading: "",
+  portOfDischarge: "",
+  finalDestination: "",
   dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000)
     .toISOString()
     .split("T")[0], // 15 days from now
   purchaseOrderNumber: "",
   purchaseOrderDate: "",
   rateCurrency: "INR",
+};
+
+const defaultNotifyPartyDetails: NotifyPartyDetails = {
+  companyName: "",
+  address: "",
+  phone: "",
+  email: "",
+  gstin: "",
 };
 
 const defaultPaymentDetails: PaymentDetails = {
@@ -181,6 +209,7 @@ export const useBillStore = create<BillState & BillActions>((set, get) => ({
   extraCharges: [],
   total: 0,
   paymentDetails: defaultPaymentDetails,
+  notifyPartyDetails: defaultNotifyPartyDetails,
   notes: [],
   termsAndConditions: defaultTermsAndConditions,
 
@@ -203,14 +232,50 @@ export const useBillStore = create<BillState & BillActions>((set, get) => ({
     })),
 
   generateBillNumber: () => {
-    const timestamp = Date.now();
-    const randomNum = Math.floor(Math.random() * 1000);
-    set({
-      billDetails: {
-        ...get().billDetails,
-        billNumber: `BILL-${timestamp}-${randomNum}`,
-      },
-    });
+    // Only run on client side where localStorage is available
+    if (typeof window === "undefined") return;
+
+    try {
+      const currentYear = new Date().getFullYear();
+      const storageKey = "bvs_last_invoice_sequence";
+      let nextSequence = 1;
+
+      const lastSequenceData = localStorage.getItem(storageKey);
+      
+      if (lastSequenceData) {
+        const parsed = JSON.parse(lastSequenceData);
+        // If it's the same year, increment the sequence. If new year, start fresh at 1.
+        if (parsed.year === currentYear) {
+          nextSequence = parsed.sequence + 1;
+        }
+      }
+
+      // Save the new sequence
+      localStorage.setItem(storageKey, JSON.stringify({
+        year: currentYear,
+        sequence: nextSequence
+      }));
+
+      // Format as BVS-2026-01
+      const paddedSequence = nextSequence.toString().padStart(2, "0");
+      const newBillNumber = `BVS-${currentYear}-${paddedSequence}`;
+
+      set({
+        billDetails: {
+          ...get().billDetails,
+          billNumber: newBillNumber,
+        },
+      });
+    } catch (e) {
+      console.error("Error generating invoice number:", e);
+      // Fallback
+      set({
+        billDetails: {
+          ...get().billDetails,
+          billNumber: `BVS-${new Date().getFullYear()}-${Math.floor(Math.random() * 1000)}`,
+        },
+      });
+    }
   },
 
   // Item actions
@@ -331,6 +396,12 @@ export const useBillStore = create<BillState & BillActions>((set, get) => ({
     set({ subtotal, total });
   },
 
+  // Notify Party actions
+  updateNotifyPartyDetails: (details) =>
+    set((state) => ({
+      notifyPartyDetails: { ...state.notifyPartyDetails, ...details },
+    })),
+
   // Payment actions
   updatePaymentDetails: (details) =>
     set((state) => ({
@@ -365,13 +436,13 @@ export const useBillStore = create<BillState & BillActions>((set, get) => ({
   updateTerms: (terms) => set({ termsAndConditions: terms }),
 
   // Utility functions
-  resetBill: () =>
+  resetBill: () => {
     set({
       companyDetails: defaultCompanyDetails,
       customerDetails: defaultCustomerDetails,
       billDetails: {
         ...defaultBillDetails,
-        billNumber: `BILL-${Date.now()}`,
+        billNumber: "",
         billDate: new Date().toISOString().split("T")[0],
         rateCurrency: "INR",
       },
@@ -385,9 +456,13 @@ export const useBillStore = create<BillState & BillActions>((set, get) => ({
       extraCharges: [],
       total: 0,
       paymentDetails: defaultPaymentDetails,
+      notifyPartyDetails: defaultNotifyPartyDetails,
       notes: [],
       termsAndConditions: defaultTermsAndConditions,
-    }),
+    });
+    // Auto-generate the new sequence immediately after reset
+    get().generateBillNumber();
+  },
 
   getBillData: (): BillData => {
     const state = get();
@@ -395,6 +470,9 @@ export const useBillStore = create<BillState & BillActions>((set, get) => ({
       billNumber: state.billDetails.billNumber,
       billDate: state.billDetails.billDate,
       containerNumber: state.billDetails.containerNumber,
+      portOfLoading: state.billDetails.portOfLoading,
+      portOfDischarge: state.billDetails.portOfDischarge,
+      finalDestination: state.billDetails.finalDestination,
       dueDate: state.billDetails.dueDate,
       purchaseOrderNumber: state.billDetails.purchaseOrderNumber,
       purchaseOrderDate: state.billDetails.purchaseOrderDate,
@@ -415,6 +493,10 @@ export const useBillStore = create<BillState & BillActions>((set, get) => ({
       total: state.total,
       paymentTerms: `Payment due by ${state.billDetails.dueDate}`,
       bankDetails: state.paymentDetails,
+      notifyParty:
+        state.notifyPartyDetails.companyName || state.notifyPartyDetails.address
+          ? state.notifyPartyDetails
+          : undefined,
       notes: state.notes,
       termsAndConditions: state.termsAndConditions,
     };

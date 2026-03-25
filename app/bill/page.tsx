@@ -37,6 +37,9 @@ import {
   Receipt,
   StickyNote,
   Scale,
+  Anchor,
+  MapPin,
+  Bell,
 } from "lucide-react";
 
 const BillPage: React.FC = () => {
@@ -51,10 +54,12 @@ const BillPage: React.FC = () => {
     extraCharges,
     notes,
     termsAndConditions,
+    notifyPartyDetails,
 
     updateCompanyDetails,
     updateCustomerDetails,
     updateBillDetails,
+    updateNotifyPartyDetails,
     addItem,
     removeItem,
     addExtraCharge,
@@ -68,7 +73,15 @@ const BillPage: React.FC = () => {
 
     calculateTotal,
     getBillData,
+    generateBillNumber,
   } = useBillStore();
+
+  useEffect(() => {
+    // Generate bill number on initial mount if it's empty
+    if (!billDetails.billNumber) {
+      generateBillNumber();
+    }
+  }, [billDetails.billNumber, generateBillNumber]);
 
   const [newNote, setNewNote] = useState("");
   const [newTerm, setNewTerm] = useState("");
@@ -384,6 +397,91 @@ const BillPage: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Notify Party Card */}
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                  <div className="px-5 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 bg-orange-100 rounded-xl flex items-center justify-center">
+                        <Bell className="w-4 h-4 text-orange-600" />
+                      </div>
+                      <h2 className="font-semibold text-slate-900">Notify Party</h2>
+                    </div>
+                  </div>
+                  <div className="p-5 space-y-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                        Company Name
+                      </label>
+                      <Input
+                        value={notifyPartyDetails.companyName}
+                        onChange={(e) =>
+                          updateNotifyPartyDetails({ companyName: e.target.value })
+                        }
+                        placeholder="Enter company name"
+                        className="h-11 rounded-xl border-slate-200 focus:border-orange-300 focus:ring-orange-200"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                        Address
+                      </label>
+                      <Input
+                        value={notifyPartyDetails.address}
+                        onChange={(e) =>
+                          updateNotifyPartyDetails({ address: e.target.value })
+                        }
+                        placeholder="Enter address"
+                        className="h-11 rounded-xl border-slate-200 focus:border-orange-300 focus:ring-orange-200"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
+                          <Phone className="w-3 h-3" /> Phone
+                        </label>
+                        <Input
+                          value={notifyPartyDetails.phone || ""}
+                          onChange={(e) =>
+                            updateNotifyPartyDetails({ phone: e.target.value })
+                          }
+                          placeholder="Phone"
+                          className="h-10 rounded-xl border-slate-200 text-sm"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
+                          <CreditCard className="w-3 h-3" /> GSTIN / VAT ID
+                        </label>
+                        <Input
+                          value={notifyPartyDetails.gstin || ""}
+                          onChange={(e) =>
+                            updateNotifyPartyDetails({ gstin: e.target.value })
+                          }
+                          placeholder="GSTIN / VAT ID"
+                          className="h-10 rounded-xl border-slate-200 text-sm"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                        Email
+                      </label>
+                      <Input
+                        value={notifyPartyDetails.email || ""}
+                        onChange={(e) =>
+                          updateNotifyPartyDetails({ email: e.target.value })
+                        }
+                        placeholder="Email address"
+                        className="h-10 rounded-xl border-slate-200 text-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Invoice Details + more grid below */}
+              <div className="grid md:grid-cols-1 gap-4 mb-6">
+
                 {/* Invoice Details Card */}
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                   <div className="px-5 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white flex items-center justify-between">
@@ -521,6 +619,47 @@ const BillPage: React.FC = () => {
                         }
                         placeholder="e.g., MSKU1234567"
                         className="h-11 rounded-xl border-slate-200 font-mono"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
+                          <Anchor className="w-3 h-3" /> Port of Loading
+                        </label>
+                        <Input
+                          value={billDetails.portOfLoading || ""}
+                          onChange={(e) =>
+                            updateBillDetails({ portOfLoading: e.target.value })
+                          }
+                          placeholder="e.g., JNPT Mumbai"
+                          className="h-11 rounded-xl border-slate-200"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
+                          <Anchor className="w-3 h-3" /> Port of Discharge
+                        </label>
+                        <Input
+                          value={billDetails.portOfDischarge || ""}
+                          onChange={(e) =>
+                            updateBillDetails({ portOfDischarge: e.target.value })
+                          }
+                          placeholder="e.g., Jebel Ali"
+                          className="h-11 rounded-xl border-slate-200"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
+                        <MapPin className="w-3 h-3" /> Final Destination
+                      </label>
+                      <Input
+                        value={billDetails.finalDestination || ""}
+                        onChange={(e) =>
+                          updateBillDetails({ finalDestination: e.target.value })
+                        }
+                        placeholder="e.g., Dubai, UAE"
+                        className="h-11 rounded-xl border-slate-200"
                       />
                     </div>
                     <div className="space-y-1.5">

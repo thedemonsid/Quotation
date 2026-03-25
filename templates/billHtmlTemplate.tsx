@@ -129,12 +129,6 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
               <p>
                 <span className="font-semibold">Date:</span> {data.billDate}
               </p>
-              {data.containerNumber && (
-                <p>
-                  <span className="font-semibold">Container No:</span>{" "}
-                  {data.containerNumber}
-                </p>
-              )}
               {data.dueDate && (
                 <p>
                   <span className="font-semibold">Due Date:</span>{" "}
@@ -159,27 +153,87 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
           </div>
         </div>
 
-        {/* Bill To Section */}
-        <div className="mb-4 border border-slate-300 p-3">
-          <h3 className="text-sm font-bold text-slate-800 mb-2 bg-slate-100 p-2">
-            BILL TO:
-          </h3>
-          <div className="space-y-1 text-sm pl-2">
-            <p className="font-semibold text-slate-800 text-base">
-              {data.customerName}
-            </p>
-            <p className="text-slate-600">{data.customerAddress}</p>
-            {data.customerPhone && (
-              <p className="text-slate-600">Phone: {data.customerPhone}</p>
-            )}
-            {data.customerEmail && (
-              <p className="text-slate-600">Email: {data.customerEmail}</p>
-            )}
-            {data.customerGSTIN && (
-              <p className="font-semibold text-slate-800">
-                GSTIN / VAT ID: {data.customerGSTIN}
+        {/* Bill To & Shipping Section */}
+        <div className="mb-4 grid grid-cols-2 gap-4">
+          <div className="border border-slate-300 p-3 h-full">
+            <h3 className="text-sm font-bold text-slate-800 mb-2 bg-slate-100 p-2 uppercase">
+              BILL TO:
+            </h3>
+            <div className="space-y-1 text-sm pl-2">
+              <p className="font-semibold text-slate-800 text-base">
+                {data.customerName}
               </p>
-            )}
+              <p className="text-slate-600">{data.customerAddress}</p>
+              {data.customerPhone && (
+                <p className="text-slate-600">Phone: {data.customerPhone}</p>
+              )}
+              {data.customerEmail && (
+                <p className="text-slate-600">Email: {data.customerEmail}</p>
+              )}
+              {data.customerGSTIN && (
+                <p className="font-semibold text-slate-800">
+                  GSTIN / VAT ID: {data.customerGSTIN}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="border border-slate-300 p-3 h-full">
+            <h3 className="text-sm font-bold text-slate-800 mb-2 bg-slate-100 p-2 uppercase">
+              Notify Party:
+            </h3>
+            <div className="space-y-1 text-sm pl-2">
+              {data.notifyParty && (
+                <>
+                  {data.notifyParty.companyName && (
+                    <p className="font-semibold text-slate-800 text-base">
+                      {data.notifyParty.companyName}
+                    </p>
+                  )}
+                  {data.notifyParty.address && (
+                    <p className="text-slate-600">{data.notifyParty.address}</p>
+                  )}
+                  {data.notifyParty.phone && (
+                    <p className="text-slate-600">Phone: {data.notifyParty.phone}</p>
+                  )}
+                  {data.notifyParty.email && (
+                    <p className="text-slate-600">Email: {data.notifyParty.email}</p>
+                  )}
+                  {data.notifyParty.gstin && (
+                    <p className="font-semibold text-slate-800">
+                      GSTIN / VAT ID: {data.notifyParty.gstin}
+                    </p>
+                  )}
+                  {(data.notifyParty.companyName || data.notifyParty.address) && (
+                    <div className="my-2 border-b border-slate-200"></div>
+                  )}
+                </>
+              )}
+              {data.containerNumber && (
+                <p>
+                  <span className="font-semibold text-slate-800">Container No:</span>{" "}
+                  <span className="text-slate-600">{data.containerNumber}</span>
+                </p>
+              )}
+              {data.portOfLoading && (
+                <p>
+                  <span className="font-semibold text-slate-800">Port of Loading:</span>{" "}
+                  <span className="text-slate-600">{data.portOfLoading}</span>
+                </p>
+              )}
+              {data.portOfDischarge && (
+                <p>
+                  <span className="font-semibold text-slate-800">Port of Discharge:</span>{" "}
+                  <span className="text-slate-600">{data.portOfDischarge}</span>
+                </p>
+              )}
+              {data.finalDestination && (
+                <p>
+                  <span className="font-semibold text-slate-800">Final Destination:</span>{" "}
+                  <span className="text-slate-600">{data.finalDestination}</span>
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
@@ -463,12 +517,6 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
                 <p className="text-slate-600">MAHBINBBSOL</p>
               </div>
             </div>
-            {/* Proprietor Stamp overlay */}
-            <img
-              src="/propraietory.png"
-              alt="Proprietor Stamp"
-              className="absolute right-4 top-1/2 -translate-y-1/2 h-24 opacity-70"
-            />
           </div>
         )}
 
@@ -501,13 +549,18 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
         {/* Signature Section */}
         <div className="mt-8 border-t-2 border-slate-800 pt-4">
           <div className="flex justify-end mb-4">
-            <div className="text-center">
+            <div className="text-center relative">
+              <img
+                src="/propraietory.png"
+                alt="Proprietor Stamp"
+                className="absolute -left-20 top-1/2 -translate-y-1/2 h-24 opacity-70 mix-blend-multiply"
+              />
               <img
                 src="/sign.png"
                 alt="Authorized Signature"
-                className="h-16 mx-auto mb-1"
+                className="h-16 mx-auto mb-1 relative z-10"
               />
-              <p className="font-semibold">Authorized Signatory for APACS</p>
+              <p className="font-semibold mt-1">Authorized Signatory for APACS</p>
             </div>
           </div>
 
@@ -528,13 +581,18 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
             <div className="text-xs text-slate-600">
               <p className="italic">This is a computer generated invoice</p>
             </div>
-            <div className="text-center">
+            <div className="text-center relative">
+              <img
+                src="/propraietory.png"
+                alt="Proprietor Stamp"
+                className="absolute -left-20 top-1/2 -translate-y-1/2 h-24 opacity-70 mix-blend-multiply"
+              />
               <img
                 src="/sign.png"
                 alt="Signature"
-                className="h-14 mx-auto mb-1"
+                className="h-14 mx-auto mb-1 relative z-10"
               />
-              <div className="border-t-2 border-slate-800 pt-2 min-w-[200px]">
+              <div className="border-t-2 border-slate-800 pt-2 min-w-[200px] mt-1">
                 <p className="font-semibold text-sm">Authorized Signatory</p>
                 <p className="text-xs text-slate-600">{companyDetails.name}</p>
               </div>
