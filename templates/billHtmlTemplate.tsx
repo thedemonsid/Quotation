@@ -520,25 +520,21 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
           </div>
         )}
 
-        {/* Notes */}
+        {/* Notes (Compact Line) */}
         {data.notes && data.notes.length > 0 && (
-          <div className="mb-4 border border-slate-300 p-3">
-            <h3 className="text-sm font-bold text-slate-800 mb-2">NOTES:</h3>
-            <ul className="list-disc list-inside text-sm text-slate-600 space-y-1">
-              {data.notes.map((note, index) => (
-                <li key={index}>{note}</li>
-              ))}
-            </ul>
+          <div className="mb-3 bg-slate-50 border-l-4 border-slate-400 p-2 text-xs text-slate-700">
+            <span className="font-bold text-slate-900 mr-2">NOTES:</span>
+            <span>{data.notes.join(" | ")}</span>
           </div>
         )}
 
-        {/* Terms and Conditions */}
+        {/* Terms and Conditions (Tightened) */}
         {data.termsAndConditions && data.termsAndConditions.length > 0 && (
-          <div className="mb-6 border border-slate-300 p-3">
-            <h3 className="text-sm font-bold text-slate-800 mb-2">
+          <div className="mb-4">
+            <h3 className="text-xs font-bold text-slate-800 mb-1">
               TERMS & CONDITIONS:
             </h3>
-            <ul className="list-decimal list-inside text-xs text-slate-600 space-y-1">
+            <ul className="list-decimal list-inside text-[10px] text-slate-600 leading-tight">
               {data.termsAndConditions.map((term, index) => (
                 <li key={index}>{term}</li>
               ))}
