@@ -549,17 +549,20 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
         {/* Signature Section */}
         <div className="mt-8 border-t-2 border-slate-800 pt-4">
           <div className="flex justify-end mb-4">
-            <div className="text-center relative">
-              <img
-                src="/propraietory.png"
-                alt="Proprietor Stamp"
-                className="absolute -left-20 top-1/2 -translate-y-1/2 h-24 opacity-70 mix-blend-multiply"
-              />
-              <img
-                src="/sign.png"
-                alt="Authorized Signature"
-                className="h-16 mx-auto mb-1 relative z-10"
-              />
+            <div className="text-center">
+              {/* Stamp perfectly overlapping the signature */}
+              <div className="relative inline-flex items-center justify-center w-40 h-20">
+                <img
+                  src="/sign.png"
+                  alt="Authorized Signature"
+                  className="h-16 w-auto relative z-10"
+                />
+                <img
+                  src="/propraietory.png"
+                  alt="Proprietor Stamp"
+                  className="absolute inset-0 w-full h-full object-contain opacity-70 mix-blend-multiply pointer-events-none z-20"
+                />
+              </div>
               <p className="font-semibold mt-1">Authorized Signatory for APACS</p>
             </div>
           </div>
@@ -581,17 +584,20 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
             <div className="text-xs text-slate-600">
               <p className="italic">This is a computer generated invoice</p>
             </div>
-            <div className="text-center relative">
-              <img
-                src="/propraietory.png"
-                alt="Proprietor Stamp"
-                className="absolute -left-20 top-1/2 -translate-y-1/2 h-24 opacity-70 mix-blend-multiply"
-              />
-              <img
-                src="/sign.png"
-                alt="Signature"
-                className="h-14 mx-auto mb-1 relative z-10"
-              />
+            <div className="text-center">
+              {/* Stamp perfectly overlapping the signature */}
+              <div className="relative inline-flex items-center justify-center w-40 h-20">
+                <img
+                  src="/sign.png"
+                  alt="Signature"
+                  className="h-14 w-auto relative z-10"
+                />
+                <img
+                  src="/propraietory.png"
+                  alt="Proprietor Stamp"
+                  className="absolute inset-0 w-full h-full object-contain opacity-70 mix-blend-multiply pointer-events-none z-20"
+                />
+              </div>
               <div className="border-t-2 border-slate-800 pt-2 min-w-[200px] mt-1">
                 <p className="font-semibold text-sm">Authorized Signatory</p>
                 <p className="text-xs text-slate-600">{companyDetails.name}</p>
