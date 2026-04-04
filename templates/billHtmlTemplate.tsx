@@ -183,31 +183,36 @@ const BillTemplate: React.FC<BillTemplateProps> = ({
               Notify Party:
             </h3>
             <div className="space-y-1 text-sm pl-2">
-              {data.notifyParty && (
-                <>
-                  {data.notifyParty.companyName && (
-                    <p className="font-semibold text-slate-800 text-base">
-                      {data.notifyParty.companyName}
-                    </p>
-                  )}
-                  {data.notifyParty.address && (
-                    <p className="text-slate-600">{data.notifyParty.address}</p>
-                  )}
-                  {data.notifyParty.phone && (
-                    <p className="text-slate-600">Phone: {data.notifyParty.phone}</p>
-                  )}
-                  {data.notifyParty.email && (
-                    <p className="text-slate-600">Email: {data.notifyParty.email}</p>
-                  )}
-                  {data.notifyParty.gstin && (
-                    <p className="font-semibold text-slate-800">
-                      GSTIN / VAT ID: {data.notifyParty.gstin}
-                    </p>
-                  )}
-                  {(data.notifyParty.companyName || data.notifyParty.address) && (
-                    <div className="my-2 border-b border-slate-200"></div>
-                  )}
-                </>
+              {data.notifyParties && data.notifyParties.length > 0 && (
+                <div>
+                  {data.notifyParties.map((party, idx) => (
+                    <div key={party.id}>
+                      {idx > 0 && (
+                        <div className="my-1 border-b border-dashed border-slate-300"></div>
+                      )}
+                      {party.companyName && (
+                        <p className="font-semibold text-slate-800 text-base">
+                          {party.companyName}
+                        </p>
+                      )}
+                      {party.address && (
+                        <p className="text-slate-600">{party.address}</p>
+                      )}
+                      {party.phone && (
+                        <p className="text-slate-600">Phone: {party.phone}</p>
+                      )}
+                      {party.email && (
+                        <p className="text-slate-600">Email: {party.email}</p>
+                      )}
+                      {party.gstin && (
+                        <p className="font-semibold text-slate-800">
+                          GSTIN / VAT ID: {party.gstin}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                  <div className="my-2 border-b border-slate-200"></div>
+                </div>
               )}
               {data.containerNumber && (
                 <p>

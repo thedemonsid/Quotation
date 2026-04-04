@@ -4,6 +4,7 @@ import type {
   BillItem,
   BillRateCurrency,
   ExtraCharge,
+  NotifyPartyEntry,
   TaxDetails,
 } from "@/types/bill";
 
@@ -26,13 +27,7 @@ export interface BillCustomerDetails {
   gstin?: string;
 }
 
-export interface NotifyPartyDetails {
-  companyName: string;
-  address: string;
-  phone?: string;
-  email?: string;
-  gstin?: string;
-}
+// NotifyPartyDetails is now imported as NotifyPartyEntry from types
 
 export interface BillDetails {
   billNumber: string;
@@ -80,8 +75,8 @@ interface BillState {
   // Payment details (editable)
   paymentDetails: PaymentDetails;
 
-  // Notify Party
-  notifyPartyDetails: NotifyPartyDetails;
+  // Notify Parties
+  notifyParties: NotifyPartyEntry[];
 
   // Additional info
   notes: string[];
@@ -119,7 +114,9 @@ interface BillActions {
   calculateTotal: () => void;
 
   // Notify Party actions
-  updateNotifyPartyDetails: (details: Partial<NotifyPartyDetails>) => void;
+  addNotifyParty: () => void;
+  updateNotifyParty: (id: string, details: Partial<NotifyPartyEntry>) => void;
+  removeNotifyParty: (id: string) => void;
 
   // Payment actions
   updatePaymentDetails: (details: Partial<PaymentDetails>) => void;
@@ -172,13 +169,7 @@ const defaultBillDetails: BillDetails = {
   rateCurrency: "INR",
 };
 
-const defaultNotifyPartyDetails: NotifyPartyDetails = {
-  companyName: "",
-  address: "",
-  phone: "",
-  email: "",
-  gstin: "",
-};
+// No more single defaultNotifyPartyDetails — we use an empty array
 
 const defaultPaymentDetails: PaymentDetails = {
   bankName: "Bank of Maharashtra",
@@ -209,7 +200,7 @@ export const useBillStore = create<BillState & BillActions>((set, get) => ({
   extraCharges: [],
   total: 0,
   paymentDetails: defaultPaymentDetails,
-  notifyPartyDetails: defaultNotifyPartyDetails,
+  notifyParties: [],
   notes: [],
   termsAndConditions: defaultTermsAndConditions,
 
@@ -397,9 +388,26 @@ export const useBillStore = create<BillState & BillActions>((set, get) => ({
   },
 
   // Notify Party actions
-  updateNotifyPartyDetails: (details) =>
+  addNotifyParty: () => {
+    const id = `np-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     set((state) => ({
-      notifyPartyDetails: { ...state.notifyPartyDetails, ...details },
+      notifyParties: [
+        ...state.notifyParties,
+        { id, companyName: "", address: "", phone: "", email: "", gstin: "" },
+      ],
+    }));
+  },
+
+  updateNotifyParty: (id, details) =>
+    set((state) => ({
+      notifyParties: state.notifyParties.map((p) =>
+        p.id === id ? { ...p, ...details } : p,
+      ),
+    })),
+
+  removeNotifyParty: (id) =>
+    set((state) => ({
+      notifyParties: state.notifyParties.filter((p) => p.id !== id),
     })),
 
   // Payment actions
@@ -456,7 +464,7 @@ export const useBillStore = create<BillState & BillActions>((set, get) => ({
       extraCharges: [],
       total: 0,
       paymentDetails: defaultPaymentDetails,
-      notifyPartyDetails: defaultNotifyPartyDetails,
+      notifyParties: [],
       notes: [],
       termsAndConditions: defaultTermsAndConditions,
     });
@@ -493,9 +501,9 @@ export const useBillStore = create<BillState & BillActions>((set, get) => ({
       total: state.total,
       paymentTerms: `Payment due by ${state.billDetails.dueDate}`,
       bankDetails: state.paymentDetails,
-      notifyParty:
-        state.notifyPartyDetails.companyName || state.notifyPartyDetails.address
-          ? state.notifyPartyDetails
+      notifyParties:
+        state.notifyParties.length > 0
+          ? state.notifyParties.filter((p) => p.companyName || p.address)
           : undefined,
       notes: state.notes,
       termsAndConditions: state.termsAndConditions,

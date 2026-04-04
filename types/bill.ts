@@ -78,16 +78,19 @@ export interface BillData {
     accountHolderName: string;
   };
 
-  // Notify Party
-  notifyParty?: {
-    companyName: string;
-    address: string;
-    phone?: string;
-    email?: string;
-    gstin?: string;
-  };
+  // Notify Parties
+  notifyParties?: NotifyPartyEntry[];
 
   // Additional info
   notes?: string[];
   termsAndConditions?: string[];
+}
+
+export interface NotifyPartyEntry {
+  id: string;
+  companyName: string;
+  address: string;
+  phone?: string;
+  email?: string;
+  gstin?: string;
 }

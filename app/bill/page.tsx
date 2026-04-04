@@ -40,6 +40,7 @@ import {
   Anchor,
   MapPin,
   Bell,
+  Mail,
 } from "lucide-react";
 
 const BillPage: React.FC = () => {
@@ -54,12 +55,14 @@ const BillPage: React.FC = () => {
     extraCharges,
     notes,
     termsAndConditions,
-    notifyPartyDetails,
+    notifyParties,
 
     updateCompanyDetails,
     updateCustomerDetails,
     updateBillDetails,
-    updateNotifyPartyDetails,
+    addNotifyParty,
+    updateNotifyParty,
+    removeNotifyParty,
     addItem,
     removeItem,
     addExtraCharge,
@@ -394,87 +397,147 @@ const BillPage: React.FC = () => {
                         />
                       </div>
                     </div>
-                  </div>
-                </div>
-
-                {/* Notify Party Card */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                  <div className="px-5 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-orange-100 rounded-xl flex items-center justify-center">
-                        <Bell className="w-4 h-4 text-orange-600" />
-                      </div>
-                      <h2 className="font-semibold text-slate-900">Notify Party</h2>
-                    </div>
-                  </div>
-                  <div className="p-5 space-y-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">
-                        Company Name
+                      <label className="text-xs font-medium text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
+                        <Mail className="w-3 h-3" /> Email
                       </label>
                       <Input
-                        value={notifyPartyDetails.companyName}
+                        type="email"
+                        value={customerDetails.email || ""}
                         onChange={(e) =>
-                          updateNotifyPartyDetails({ companyName: e.target.value })
-                        }
-                        placeholder="Enter company name"
-                        className="h-11 rounded-xl border-slate-200 focus:border-orange-300 focus:ring-orange-200"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">
-                        Address
-                      </label>
-                      <Input
-                        value={notifyPartyDetails.address}
-                        onChange={(e) =>
-                          updateNotifyPartyDetails({ address: e.target.value })
-                        }
-                        placeholder="Enter address"
-                        className="h-11 rounded-xl border-slate-200 focus:border-orange-300 focus:ring-orange-200"
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
-                          <Phone className="w-3 h-3" /> Phone
-                        </label>
-                        <Input
-                          value={notifyPartyDetails.phone || ""}
-                          onChange={(e) =>
-                            updateNotifyPartyDetails({ phone: e.target.value })
-                          }
-                          placeholder="Phone"
-                          className="h-10 rounded-xl border-slate-200 text-sm"
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
-                          <CreditCard className="w-3 h-3" /> GSTIN / VAT ID
-                        </label>
-                        <Input
-                          value={notifyPartyDetails.gstin || ""}
-                          onChange={(e) =>
-                            updateNotifyPartyDetails({ gstin: e.target.value })
-                          }
-                          placeholder="GSTIN / VAT ID"
-                          className="h-10 rounded-xl border-slate-200 text-sm"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">
-                        Email
-                      </label>
-                      <Input
-                        value={notifyPartyDetails.email || ""}
-                        onChange={(e) =>
-                          updateNotifyPartyDetails({ email: e.target.value })
+                          updateCustomerDetails({ email: e.target.value })
                         }
                         placeholder="Email address"
                         className="h-10 rounded-xl border-slate-200 text-sm"
                       />
                     </div>
+                  </div>
+                </div>
+
+                {/* Notify Party Section */}
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                  <div className="px-5 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 bg-orange-100 rounded-xl flex items-center justify-center">
+                          <Bell className="w-4 h-4 text-orange-600" />
+                        </div>
+                        <h2 className="font-semibold text-slate-900">Notify Party</h2>
+                        {notifyParties.length > 0 && (
+                          <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">
+                            {notifyParties.length}
+                          </span>
+                        )}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => addNotifyParty()}
+                        className="gap-1.5 text-orange-600 border-orange-200 hover:bg-orange-50 rounded-lg h-8"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        Add Party
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="p-5 space-y-4">
+                    {notifyParties.length === 0 && (
+                      <div className="text-center py-6">
+                        <div className="w-12 h-12 mx-auto bg-orange-50 rounded-xl flex items-center justify-center mb-3">
+                          <Bell className="w-6 h-6 text-orange-300" />
+                        </div>
+                        <p className="text-sm text-slate-500">No notify parties added</p>
+                        <p className="text-xs text-slate-400 mt-1">Click &quot;Add Party&quot; to add one</p>
+                      </div>
+                    )}
+                    {notifyParties.map((party, idx) => (
+                      <div
+                        key={party.id}
+                        className="border border-slate-200 rounded-xl p-4 space-y-3 relative group"
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-semibold text-orange-600 uppercase tracking-wide">
+                            Party {idx + 1}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeNotifyParty(party.id)}
+                            className="h-7 w-7 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                            Company Name
+                          </label>
+                          <Input
+                            value={party.companyName}
+                            onChange={(e) =>
+                              updateNotifyParty(party.id, { companyName: e.target.value })
+                            }
+                            placeholder="Enter company name"
+                            className="h-10 rounded-xl border-slate-200 focus:border-orange-300 focus:ring-orange-200 text-sm"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                            Address
+                          </label>
+                          <Input
+                            value={party.address}
+                            onChange={(e) =>
+                              updateNotifyParty(party.id, { address: e.target.value })
+                            }
+                            placeholder="Enter address"
+                            className="h-10 rounded-xl border-slate-200 focus:border-orange-300 focus:ring-orange-200 text-sm"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-medium text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
+                              <Phone className="w-3 h-3" /> Phone
+                            </label>
+                            <Input
+                              value={party.phone || ""}
+                              onChange={(e) =>
+                                updateNotifyParty(party.id, { phone: e.target.value })
+                              }
+                              placeholder="Phone"
+                              className="h-9 rounded-xl border-slate-200 text-sm"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-medium text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
+                              <CreditCard className="w-3 h-3" /> GSTIN / VAT ID
+                            </label>
+                            <Input
+                              value={party.gstin || ""}
+                              onChange={(e) =>
+                                updateNotifyParty(party.id, { gstin: e.target.value })
+                              }
+                              placeholder="GSTIN / VAT ID"
+                              className="h-9 rounded-xl border-slate-200 text-sm"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
+                            <Mail className="w-3 h-3" /> Email
+                          </label>
+                          <Input
+                            type="email"
+                            value={party.email || ""}
+                            onChange={(e) =>
+                              updateNotifyParty(party.id, { email: e.target.value })
+                            }
+                            placeholder="Email address"
+                            className="h-9 rounded-xl border-slate-200 text-sm"
+                          />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
